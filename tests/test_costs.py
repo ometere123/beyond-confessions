@@ -32,6 +32,11 @@ def test_usage_merge() -> None:
     }
 
 
+def test_cached_input_cost_survives_normalization() -> None:
+    usage = {"prompt_tokens": 1_000, "completion_tokens": 100, "cached_input_tokens": 600}
+    assert estimate_token_cost_usd("gpt-6-luna", usage) == 0.000096
+
+
 def test_modal_estimate_is_bounded() -> None:
     estimate = estimate_modal_gpu_cost(gpu="A10G", active_seconds=300)
     assert estimate.gpu == "A10"

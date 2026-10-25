@@ -32,8 +32,13 @@ The upstream checkout is not edited. The Beyond Confessions runner:
 2. loads `OPENAI_API_KEY` and `OPENAI_BASE_URL` from the local process/.env;
 3. maps those values to the starter's already-supported `LLM_BASE_URL`/`LLM_API_KEY` path;
 4. supplies a derived YAML config with the selected OpenAI model;
-5. monkey-patches only the OpenAI Chat Completions boundary in the child process to count requests, usage, latency, and failures without recording prompts;
+5. wraps only the starter adapter's `requests.Session.post` Chat Completions boundary in the child process, translates `max_tokens` to `max_completion_tokens` for the verified GPT-6 Luna route, adds `reasoning_effort=none`, and counts requests, usage, latency, and failures without recording prompts or response bodies;
 6. writes `usage.json` beside the starter's normal output; and
 7. never calls `poseidon_compute.hosted_model`, `modal run`, or a persistent endpoint.
+
+On Windows, the unmodified starter generated log paths longer than the default
+filesystem limit when checked out under the original Documents workspace. The
+successful run used a real Git worktree at `C:\CH2` at the same pinned commit;
+the starter source and experiment settings were unchanged.
 
 No ground-truth label is passed to a judge by this milestone. The auditor/judge workflow is deferred until the control artifacts and matched conditions are available.

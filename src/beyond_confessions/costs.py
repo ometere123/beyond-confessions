@@ -70,8 +70,12 @@ def usage_to_dict(usage: Any) -> dict[str, int]:
     total = _int(_value(usage, "total_tokens")) or prompt + completion
     prompt_details = _value(usage, "prompt_tokens_details", {})
     completion_details = _value(usage, "completion_tokens_details", {})
-    cached = _int(_value(prompt_details, "cached_tokens"))
-    reasoning = _int(_value(completion_details, "reasoning_tokens"))
+    cached = _int(_value(usage, "cached_input_tokens"))
+    if not cached:
+        cached = _int(_value(prompt_details, "cached_tokens"))
+    reasoning = _int(_value(usage, "reasoning_tokens"))
+    if not reasoning:
+        reasoning = _int(_value(completion_details, "reasoning_tokens"))
     result = {
         "prompt_tokens": prompt,
         "completion_tokens": completion,

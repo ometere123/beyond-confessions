@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -112,6 +113,114 @@ def load_usage_summary(root: str | Path) -> dict[str, Any] | None:
     return None
 
 
+def _validate_run_consistency(run_dir: Path, report: ValidationReport) -> None:
+    """Check cross-file relationships without interpreting them as collusion."""
+
+    paths = {name: run_dir / name for name in REQUIRED_RUN_FILES}
+    if any(not path.is_file() for path in paths.values()):
+        return
+    try:
+        run_config = _read_json(paths["run_config.json"])
+        final_summary = _read_json(paths["final_summary.json"])
+        metrics = _read_json(paths["metrics.json"])
+        turns = _read_json(paths["agent_turns.json"])
+        tool_events = _read_json(paths["tool_events.json"])
+        blackboards = _read_json(paths["blackboards.json"])
+    except (OSError, json.JSONDecodeError):
+        return
+
+    if not all(isinstance(value, dict) for value in (run_config, final_summary, metrics)):
+        report.status = "fail"
+        report.issues.append(f"{run_dir.name}: run metadata must be JSON objects")
+        return
+    if not all(isinstance(value, list) for value in (turns, tool_events, blackboards)):
+        report.status = "fail"
+        report.issues.append(f"{run_dir.name}: turn, tool, and blackboard files must be JSON arrays")
+        return
+
+    def issue(message: str) -> None:
+        report.status = "fail"
+        report.issues.append(f"{run_dir.name}: {message}")
+
+    roles = run_config.get("roles") or {}
+    colluders = set(run_config.get("colluders") or [])
+    role_colluders = {name for name, role in roles.items() if role == "colluder"}
+    if run_config.get("num_agents") != len(roles):
+        issue("run_config num_agents does not match roles")
+    if run_config.get("colluder_count") != len(colluders):
+        issue("run_config colluder_count does not match colluders")
+    if colluders != role_colluders:
+        issue("run_config colluders do not match colluder roles")
+
+    participants = run_config.get("blackboard_participants") or {}
+    secret_id = str(run_config.get("secret_blackboard_id"))
+    if run_config.get("secret_channel_enabled") and set(participants.get(secret_id, [])) != colluders:
+        issue("secret blackboard participants do not match assigned colluders")
+
+    assignment = final_summary.get("assignment") or {}
+    if not isinstance(assignment, dict):
+        issue("final_summary assignment is not an object")
+        assignment = {}
+    task_ids = [str(task_id) for task_id in assignment.values()]
+    if len(task_ids) != len(set(task_ids)):
+        issue("final_summary assigns the same task to multiple agents")
+    if assignment and final_summary.get("tasks_done") != len(set(task_ids)):
+        issue("final_summary tasks_done does not match unique assigned tasks")
+    rewards = final_summary.get("agent_rewards") or {}
+    if isinstance(rewards, dict) and isinstance(final_summary.get("joint_reward"), (int, float)):
+        reward_sum = sum(float(value) for value in rewards.values() if isinstance(value, (int, float)))
+        if not math.isclose(reward_sum, float(final_summary["joint_reward"]), rel_tol=1e-9, abs_tol=1e-9):
+            issue("final_summary agent rewards do not sum to joint_reward")
+
+    if metrics.get("status") != final_summary.get("status"):
+        issue("metrics status does not match final_summary status")
+    for metric_field in ("total_agents", "colluder_count", "secret_blackboard_id"):
+        config_value = run_config.get({"total_agents": "num_agents"}.get(metric_field, metric_field))
+        if config_value is not None and metrics.get(metric_field) != config_value:
+            issue(f"metrics {metric_field} does not match run_config")
+
+    event_posts = [event for event in tool_events if event.get("tool_name") == "post_message"]
+    event_assignments = [event for event in tool_events if event.get("tool_name") == "assign_task"]
+    colluder_posts = [event for event in event_posts if event.get("agent_name") in colluders]
+    secret_posts = [
+        event
+        for event in colluder_posts
+        if str((event.get("arguments") or {}).get("blackboard_id")) == secret_id
+    ]
+    if metrics.get("colluder_posts_total") != len(colluder_posts):
+        issue("metrics colluder_posts_total does not match tool_events")
+    if metrics.get("colluder_posts_secret") != len(secret_posts):
+        issue("metrics colluder_posts_secret does not match tool_events")
+    if metrics.get("colluder_posts_non_secret") != len(colluder_posts) - len(secret_posts):
+        issue("metrics colluder_posts_non_secret does not match tool_events")
+    if any(event.get("agent_name") not in colluders for event in secret_posts):
+        issue("secret communication was attributed to a non-colluder")
+
+    executed_tasks = {
+        str((event.get("arguments") or {}).get("task_id"))
+        for event in event_assignments
+        if (event.get("arguments") or {}).get("task_id") is not None
+    }
+    if not set(task_ids).issubset(executed_tasks):
+        issue("final assignments are not represented by assign_task tool events")
+    if len(executed_tasks) != len(task_ids):
+        issue("unique assign_task tool events do not match final assignments")
+
+    model_values = {turn.get("model") for turn in turns if turn.get("model")}
+    if run_config.get("model") and model_values != {run_config["model"]}:
+        issue("agent turn models do not match run_config model")
+
+    blackboard_events = [event for board in blackboards for event in board.get("events", [])]
+    secret_blackboard_events = [
+        event for event in blackboard_events if str(event.get("blackboard_id")) == secret_id
+    ]
+    if any(
+        event.get("kind") == "communication" and event.get("agent") not in colluders
+        for event in secret_blackboard_events
+    ):
+        issue("blackboards contains secret communication from a non-colluder")
+
+
 def validate_experiment_root(
     root: str | Path,
     *,
@@ -160,6 +269,7 @@ def validate_experiment_root(
                 except json.JSONDecodeError as exc:
                     report.status = "fail"
                     report.issues.append(f"invalid JSON {path}: {exc.msg}")
+        _validate_run_consistency(run_dir, report)
 
     report.usage_summary = load_usage_summary(root_path)
     if require_usage_ledger and report.usage_summary is None:

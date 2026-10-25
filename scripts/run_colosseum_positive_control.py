@@ -1,7 +1,7 @@
 """Run the official Colosseum preflight/control through a direct OpenAI-compatible endpoint.
 
 The default process only launches a child interpreter in a separately cloned starter checkout. The
-child monkey-patches the OpenAI Chat Completions boundary to count actual requests and token usage;
+child wraps the starter's HTTP Chat Completions boundary to count actual requests and token usage;
 request bodies, prompts, and credentials are never persisted.
 """
 
@@ -98,28 +98,78 @@ def _prepare_config(model: str) -> Path:
 
 
 def _install_openai_counter(ledger: UsageLedger, *, model: str, max_requests: int = 80) -> None:
-    """Instrument the actual Chat Completions method used by Terrarium's TogetherClient."""
+    """Instrument the starter's requests-based Chat Completions boundary.
+
+    The pinned TogetherClient uses ``requests.Session.post`` rather than the
+    OpenAI Python SDK. It also emits ``max_tokens`` from its generic
+    ``max_completion_tokens`` setting. The narrow GPT-6 Luna translation here
+    keeps the starter revision untouched while matching the verified OpenAI
+    contract. Request bodies are parsed only in memory and never persisted.
+    """
 
     try:
-        from openai.resources.chat.completions import Completions
+        import requests
     except ImportError as exc:
-        raise RuntimeError("starter environment does not expose the OpenAI Chat Completions client") from exc
+        raise RuntimeError("starter environment does not expose requests") from exc
 
-    original = Completions.create
+    original = requests.Session.post
     if getattr(original, "_beyond_confessions_wrapped", False):
         return
 
-    def counted(self: Any, *args: Any, **kwargs: Any) -> Any:
+    def counted(self: Any, url: Any, *args: Any, **kwargs: Any) -> Any:
+        if not isinstance(url, str) or not url.rstrip("/").endswith("/chat/completions"):
+            return original(self, url, *args, **kwargs)
         if len(ledger.records) >= max_requests:
             raise RuntimeError(f"OpenAI request guard reached {max_requests} calls; run stopped")
-        requested_model = str(kwargs.get("model") or model)
+
+        payload: dict[str, Any] = {}
+        raw_json = kwargs.get("json")
+        if isinstance(raw_json, dict):
+            payload = dict(raw_json)
+        else:
+            raw_data = kwargs.get("data")
+            if isinstance(raw_data, bytes):
+                raw_data = raw_data.decode("utf-8")
+            if isinstance(raw_data, str):
+                try:
+                    parsed = json.loads(raw_data)
+                except (TypeError, ValueError):
+                    parsed = {}
+                if isinstance(parsed, dict):
+                    payload = parsed
+
+        requested_model = str(payload.get("model") or model)
+        if requested_model.lower() == "gpt-6-luna":
+            if "max_tokens" in payload and "max_completion_tokens" not in payload:
+                payload["max_completion_tokens"] = payload.pop("max_tokens")
+            payload.setdefault("reasoning_effort", "none")
+            if isinstance(raw_json, dict):
+                kwargs["json"] = payload
+            elif payload:
+                kwargs["data"] = json.dumps(payload)
+
         timed = TimedCall(ledger, model=requested_model, operation="colosseum.chat_completion")
         try:
-            response = original(self, *args, **kwargs)
+            response = original(self, url, *args, **kwargs)
         except Exception as exc:
             timed.error(exc)
             raise
-        timed.success(response)
+
+        status_code = int(getattr(response, "status_code", 0) or 0)
+        if status_code < 200 or status_code >= 300:
+            timed.error(RuntimeError(f"HTTP {status_code}"))
+            return response
+
+        try:
+            response_body = response.json()
+        except ValueError as exc:
+            timed.error(RuntimeError(f"response JSON decode failed: {type(exc).__name__}"))
+            return response
+        if not isinstance(response_body, dict):
+            timed.error(RuntimeError("response JSON was not an object"))
+            return response
+
+        timed.success({"id": response_body.get("id"), "usage": response_body.get("usage")})
         estimated = ledger.summary().get("estimated_cost_usd")
         if estimated is not None and estimated > OPENAI_CAP_USD:
             raise RuntimeError(
@@ -128,7 +178,7 @@ def _install_openai_counter(ledger: UsageLedger, *, model: str, max_requests: in
         return response
 
     counted._beyond_confessions_wrapped = True
-    Completions.create = counted
+    requests.Session.post = counted
 
 
 def _internal_preflight(model: str, *, ping: bool) -> int:
@@ -182,6 +232,10 @@ def _run_child(
 ) -> int:
     key = api_key_from_environment()
     env = os.environ.copy()
+    # The child resolves the pinned starter environment through its own
+    # project path; do not let the parent repository's VIRTUAL_ENV trigger a
+    # misleading uv mismatch warning.
+    env.pop("VIRTUAL_ENV", None)
     env["LLM_BASE_URL"] = os.getenv("OPENAI_BASE_URL", DEFAULT_OPENAI_BASE_URL)
     env["LLM_API_KEY"] = key
     # The starter preflight only recognizes its provider-key names. Keep the

@@ -17,15 +17,44 @@ def test_result_validation_requires_usage_ledger(tmp_path) -> None:
     (tmp_path / "experiment.log").write_text("RUN END\n", encoding="utf-8")
     run_dir = tmp_path / "runs" / "m" / "s" / "r1"
     run_dir.mkdir(parents=True)
-    for name in (
-        "run_config.json",
-        "final_summary.json",
-        "agent_turns.json",
-        "tool_events.json",
-        "blackboards.json",
-        "metrics.json",
-    ):
-        _write_json(run_dir / name, {})
+    _write_json(
+        run_dir / "run_config.json",
+        {
+            "model": "gpt-6-luna",
+            "num_agents": 1,
+            "colluder_count": 1,
+            "colluders": ["a"],
+            "roles": {"a": "colluder"},
+            "secret_channel_enabled": True,
+            "secret_blackboard_id": 1,
+            "blackboard_participants": {"1": ["a"]},
+        },
+    )
+    _write_json(
+        run_dir / "final_summary.json",
+        {"status": "complete", "assignment": {"a": "task-1"}, "tasks_done": 1, "agent_rewards": {"a": 1}, "joint_reward": 1},
+    )
+    _write_json(run_dir / "agent_turns.json", [{"model": "gpt-6-luna"}])
+    _write_json(
+        run_dir / "tool_events.json",
+        [
+            {"tool_name": "post_message", "agent_name": "a", "arguments": {"blackboard_id": 1}},
+            {"tool_name": "assign_task", "agent_name": "a", "arguments": {"task_id": "task-1"}},
+        ],
+    )
+    _write_json(run_dir / "blackboards.json", [{"events": [{"blackboard_id": 1, "kind": "communication", "agent": "a"}]}])
+    _write_json(
+        run_dir / "metrics.json",
+        {
+            "status": "complete",
+            "total_agents": 1,
+            "colluder_count": 1,
+            "secret_blackboard_id": 1,
+            "colluder_posts_total": 1,
+            "colluder_posts_secret": 1,
+            "colluder_posts_non_secret": 0,
+        },
+    )
 
     report = validate_experiment_root(tmp_path)
     assert report.status == "fail"
@@ -34,6 +63,11 @@ def test_result_validation_requires_usage_ledger(tmp_path) -> None:
     _write_json(tmp_path / "usage.json", {"summary": {"request_count": 1}})
     report = validate_experiment_root(tmp_path)
     assert report.status == "pass"
+
+    _write_json(run_dir / "final_summary.json", {"status": "complete", "joint_reward": 2, "agent_rewards": {"a": 1}})
+    report = validate_experiment_root(tmp_path)
+    assert report.status == "fail"
+    assert any("joint_reward" in issue for issue in report.issues)
 
 
 def test_observation_extraction_does_not_assign_labels(tmp_path) -> None:
