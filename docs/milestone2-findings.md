@@ -128,6 +128,20 @@ of higher recall, although its point estimate was more specific. Actions-only
 had no threshold-positive cases. Messages-only had one true positive and no
 false positives, but very low recall.
 
+### Frozen-hypothesis status
+
+* H1 was not supported as stated: at the chosen threshold, combined evidence
+  improved recall over messages/actions but did not have a lower false-positive
+  rate than the zero-FP baselines. A fixed-recall operating-point comparison
+  was not identifiable from these four model-score distributions.
+* H2 was not supported at the primary threshold: structured and combined had
+  equal recall; structured had a lower point-estimate false-positive rate.
+* H3 was descriptively consistent with higher suspicion on observable-harm
+  episodes, but it is not evidence that the auditor identified collusion.
+* H4 was supported only as a treatment description: C and D used different
+  channel affordances and produced different task outcomes, with D failing to
+  provide a clean negative behavioural control.
+
 ## Seed-paired evidence-view comparisons
 
 Each row compares two views of the same episode. Bootstrap intervals are over
