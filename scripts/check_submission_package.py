@@ -14,7 +14,10 @@ from pypdf.errors import PdfReadError
 
 ABSTRACT_RE = re.compile(r"\*\*Abstract\.\*\*(.*?)(?:\n\n|$)", re.DOTALL)
 IMAGE_RE = re.compile(r"!\[[^]]*\]\(([^)]+)\)")
-CREDENTIAL_RE = re.compile(r"sk-[A-Za-z0-9_-]{20,}|-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY-----")
+CREDENTIAL_RE = re.compile(
+    r"sk-(?:proj-|live-|admin-)[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9]{40,}|"
+    r"-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY-----"
+)
 
 
 def _words(text: str) -> int:
