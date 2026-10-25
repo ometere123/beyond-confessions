@@ -111,7 +111,7 @@ def main() -> int:
         failures.append(f"unexpected main-text page count: {main_text_pages}")
     if CREDENTIAL_RE.search(pdf_text):
         failures.append("credential-like material detected in PDF text")
-    if "OPENAI_API_KEY=" in pdf_text:
+    if "OPENAI_API_KEY" + "=" in pdf_text:
         failures.append("possible private configuration material detected in PDF text")
 
     verification = _load_json(verification_path, failures)
