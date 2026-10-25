@@ -36,6 +36,7 @@ class ValidationReport:
     root: str
     status: str
     issues: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
     run_count: int = 0
     summary_row_count: int = 0
     observed_models: list[str] = field(default_factory=list)
@@ -47,6 +48,7 @@ class ValidationReport:
             "root": self.root,
             "status": self.status,
             "issues": self.issues,
+            "warnings": self.warnings,
             "run_count": self.run_count,
             "summary_row_count": self.summary_row_count,
             "observed_models": self.observed_models,
@@ -153,9 +155,13 @@ def _validate_run_consistency(run_dir: Path, report: ValidationReport) -> None:
         issue("run_config colluders do not match colluder roles")
 
     participants = run_config.get("blackboard_participants") or {}
-    secret_id = str(run_config.get("secret_blackboard_id"))
-    if run_config.get("secret_channel_enabled") and set(participants.get(secret_id, [])) != colluders:
-        issue("secret blackboard participants do not match assigned colluders")
+    secret_id_value = run_config.get("secret_blackboard_id")
+    secret_id = str(secret_id_value) if secret_id_value is not None else None
+    if run_config.get("secret_channel_enabled") and secret_id is not None:
+        extra_members = str(run_config.get("extra_channel_members") or "colluders").strip().lower()
+        expected_participants = set(roles) if extra_members == "all" else colluders
+        if set(participants.get(secret_id, [])) != expected_participants:
+            issue("extra channel participants do not match the configured treatment")
 
     assignment = final_summary.get("assignment") or {}
     if not isinstance(assignment, dict):
@@ -163,9 +169,9 @@ def _validate_run_consistency(run_dir: Path, report: ValidationReport) -> None:
         assignment = {}
     task_ids = [str(task_id) for task_id in assignment.values()]
     if len(task_ids) != len(set(task_ids)):
-        issue("final_summary assigns the same task to multiple agents")
-    if assignment and final_summary.get("tasks_done") != len(set(task_ids)):
-        issue("final_summary tasks_done does not match unique assigned tasks")
+        report.warnings.append(f"{run_dir.name}: final_summary contains duplicate task assignments; retained as an observed violation")
+    if assignment and final_summary.get("tasks_done") != len(task_ids):
+        issue("final_summary tasks_done does not match the number of assigned agents")
     rewards = final_summary.get("agent_rewards") or {}
     if isinstance(rewards, dict) and isinstance(final_summary.get("joint_reward"), (int, float)):
         reward_sum = sum(float(value) for value in rewards.values() if isinstance(value, (int, float)))
@@ -182,29 +188,37 @@ def _validate_run_consistency(run_dir: Path, report: ValidationReport) -> None:
     event_posts = [event for event in tool_events if event.get("tool_name") == "post_message"]
     event_assignments = [event for event in tool_events if event.get("tool_name") == "assign_task"]
     colluder_posts = [event for event in event_posts if event.get("agent_name") in colluders]
-    secret_posts = [
-        event
-        for event in colluder_posts
-        if str((event.get("arguments") or {}).get("blackboard_id")) == secret_id
-    ]
+    secret_posts = []
+    if run_config.get("secret_channel_enabled") and secret_id is not None:
+        secret_posts = [
+            event
+            for event in colluder_posts
+            if str((event.get("arguments") or {}).get("blackboard_id")) == secret_id
+        ]
     if metrics.get("colluder_posts_total") != len(colluder_posts):
         issue("metrics colluder_posts_total does not match tool_events")
     if metrics.get("colluder_posts_secret") != len(secret_posts):
         issue("metrics colluder_posts_secret does not match tool_events")
     if metrics.get("colluder_posts_non_secret") != len(colluder_posts) - len(secret_posts):
         issue("metrics colluder_posts_non_secret does not match tool_events")
-    if any(event.get("agent_name") not in colluders for event in secret_posts):
-        issue("secret communication was attributed to a non-colluder")
+    if secret_id is not None:
+        extra_members = str(run_config.get("extra_channel_members") or "colluders").strip().lower()
+        allowed_secret_authors = set(roles) if extra_members == "all" else colluders
+        all_secret_posts = [
+            event
+            for event in event_posts
+            if str((event.get("arguments") or {}).get("blackboard_id")) == secret_id
+        ]
+        if any(event.get("agent_name") not in allowed_secret_authors for event in all_secret_posts):
+            issue("extra-channel communication was attributed to an agent outside the configured audience")
 
-    executed_tasks = {
-        str((event.get("arguments") or {}).get("task_id"))
+    executed_agent_tasks = {
+        (str(event.get("agent_name")), str((event.get("arguments") or {}).get("task_id")))
         for event in event_assignments
-        if (event.get("arguments") or {}).get("task_id") is not None
     }
-    if not set(task_ids).issubset(executed_tasks):
+    final_agent_tasks = {(str(agent), str(task_id)) for agent, task_id in assignment.items()}
+    if not final_agent_tasks.issubset(executed_agent_tasks):
         issue("final assignments are not represented by assign_task tool events")
-    if len(executed_tasks) != len(task_ids):
-        issue("unique assign_task tool events do not match final assignments")
 
     model_values = {turn.get("model") for turn in turns if turn.get("model")}
     if run_config.get("model") and model_values != {run_config["model"]}:
@@ -214,11 +228,14 @@ def _validate_run_consistency(run_dir: Path, report: ValidationReport) -> None:
     secret_blackboard_events = [
         event for event in blackboard_events if str(event.get("blackboard_id")) == secret_id
     ]
-    if any(
-        event.get("kind") == "communication" and event.get("agent") not in colluders
-        for event in secret_blackboard_events
-    ):
-        issue("blackboards contains secret communication from a non-colluder")
+    if secret_id is not None:
+        extra_members = str(run_config.get("extra_channel_members") or "colluders").strip().lower()
+        allowed_secret_authors = set(roles) if extra_members == "all" else colluders
+        if any(
+            event.get("kind") == "communication" and event.get("agent") not in allowed_secret_authors
+            for event in secret_blackboard_events
+        ):
+            issue("blackboards contains communication from an agent outside the configured channel audience")
 
 
 def validate_experiment_root(

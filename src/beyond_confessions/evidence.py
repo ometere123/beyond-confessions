@@ -76,6 +76,7 @@ def _summary_outcome(final_summary: dict[str, Any], agent_ids: dict[str, str]) -
     assignment = final_summary.get("assignment") or {}
     rewards = final_summary.get("agent_rewards") or {}
     return {
+        "evidence_id": "outcome-0001",
         "status": final_summary.get("status"),
         "tasks_done": final_summary.get("tasks_done"),
         "joint_reward": final_summary.get("joint_reward"),

@@ -349,6 +349,16 @@ def _episode_record(manifest: dict[str, Any], episode_key: str) -> dict[str, Any
     return None
 
 
+def _evidence_requires_refresh(record: dict[str, Any]) -> bool:
+    evidence_dir = Path(str(record.get("evidence_dir") or ""))
+    combined = evidence_dir / "combined.json"
+    try:
+        value = json.loads(combined.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return True
+    return (value.get("outcome") or {}).get("evidence_id") != "outcome-0001"
+
+
 def _replace_episode_record(manifest: dict[str, Any], record: dict[str, Any]) -> None:
     episodes = manifest.setdefault("episodes", [])
     for index, existing in enumerate(episodes):
@@ -365,6 +375,82 @@ def _record_failure(manifest: dict[str, Any], failure: dict[str, Any]) -> None:
 def _case_id(condition_id: str, seed: int) -> str:
     condition_number = {"A": 1, "B": 2, "C": 3, "D": 4}[condition_id]
     return f"case-{condition_number * 100 + int(seed):04d}"
+
+
+def _find_valid_existing_result(episode_dir: Path) -> tuple[Path, Path, Any] | None:
+    """Recover a valid prior attempt without spending another model request."""
+
+    for attempt_dir in sorted(episode_dir.glob("attempt-*"), reverse=True):
+        for summary_path in sorted((attempt_dir / "colosseum").rglob("summary.json"), reverse=True):
+            result_root = summary_path.parent
+            report = validate_experiment_root(result_root)
+            if report.status == "pass":
+                return attempt_dir, result_root, report
+    return None
+
+
+def _finalize_episode(
+    *,
+    output_root: Path,
+    episode_dir: Path,
+    attempt_dir: Path,
+    result_root: Path,
+    report: Any,
+    protocol: dict[str, Any],
+    condition: dict[str, Any],
+    seed: int,
+    model: str,
+    case_id: str,
+    manifest: dict[str, Any],
+) -> dict[str, Any]:
+    write_json(attempt_dir / "artifact_validation.json", report.as_dict())
+    bundle = extract_evidence_views(result_root, case_id=case_id)
+    evidence_dir = episode_dir / "evidence"
+    evidence_validation = write_evidence_bundle(bundle, evidence_dir)
+    adjudication = adjudicate_episode(
+        result_root,
+        condition=condition,
+        seed=seed,
+        case_id=case_id,
+        bundle=bundle,
+    )
+    write_json(episode_dir / "adjudication.json", adjudication)
+    marker = {
+        "schema_version": "beyond-confessions-episode-1",
+        "status": "complete",
+        "episode_key": f"{condition['id']}-seed-{seed}",
+        "condition": condition["id"],
+        "condition_name": condition["name"],
+        "seed": int(seed),
+        "case_id": case_id,
+        "model": model,
+        "protocol_version": protocol["protocol_version"],
+        "raw_result_root": str(result_root),
+        "raw_result_sha256": sha256_file(result_root / "summary.json"),
+        "artifact_validation": report.as_dict(),
+        "evidence_validation": evidence_validation,
+        "adjudication_file": str((episode_dir / "adjudication.json").resolve()),
+        "complete_at": __import__("datetime").datetime.now(__import__("datetime").UTC).isoformat(),
+    }
+    marker_path = episode_dir / "episode_complete.json"
+    write_json(marker_path, marker)
+    record = {
+        "episode_key": f"{condition['id']}-seed-{seed}",
+        "status": "complete",
+        "condition": condition["id"],
+        "condition_name": condition["name"],
+        "seed": int(seed),
+        "case_id": case_id,
+        "episode_marker": str(marker_path.resolve()),
+        "raw_result_root": str(result_root),
+        "evidence_dir": str(evidence_dir.resolve()),
+        "adjudication_file": str((episode_dir / "adjudication.json").resolve()),
+        "audit_dir": str((episode_dir / "audits").resolve()),
+    }
+    _replace_episode_record(manifest, record)
+    _save_manifest(output_root, manifest)
+    print(json.dumps({"status": "complete", "episode_key": record["episode_key"], "raw_result_root": str(result_root)}))
+    return record
 
 
 def _run_one_episode(
@@ -384,7 +470,7 @@ def _run_one_episode(
     existing = _episode_record(manifest, episode_key)
     if existing and completed_episode_is_resumable(
         existing, protocol_version=str(protocol["protocol_version"]), model=model
-    ):
+    ) and not _evidence_requires_refresh(existing):
         return existing
     episode_dir = output_root / "episodes" / episode_key
     episode_dir.mkdir(parents=True, exist_ok=True)
@@ -393,6 +479,22 @@ def _run_one_episode(
         print(json.dumps({"episode_key": episode_key, "condition": condition["id"], "seed": seed, "case_id": case_id}))
         return None
     attempts = sorted(episode_dir.glob("attempt-*"))
+    recovered = _find_valid_existing_result(episode_dir)
+    if recovered is not None:
+        attempt_dir, result_root, report = recovered
+        return _finalize_episode(
+            output_root=output_root,
+            episode_dir=episode_dir,
+            attempt_dir=attempt_dir,
+            result_root=result_root,
+            report=report,
+            protocol=protocol,
+            condition=condition,
+            seed=seed,
+            model=model,
+            case_id=case_id,
+            manifest=manifest,
+        )
     attempt_number = len(attempts) + 1
     attempt_dir = episode_dir / f"attempt-{attempt_number:03d}"
     raw_out = attempt_dir / "colosseum"
@@ -440,7 +542,6 @@ def _run_one_episode(
         return None
     result_root = Path(str(child_payload.get("result_root"))).resolve()
     report = validate_experiment_root(result_root)
-    write_json(attempt_dir / "artifact_validation.json", report.as_dict())
     if report.status != "pass":
         failure = {
             "episode_key": episode_key,
@@ -455,54 +556,19 @@ def _run_one_episode(
         _record_failure(manifest, failure)
         _save_manifest(output_root, manifest)
         return None
-
-    bundle = extract_evidence_views(result_root, case_id=case_id)
-    evidence_dir = episode_dir / "evidence"
-    evidence_validation = write_evidence_bundle(bundle, evidence_dir)
-    adjudication = adjudicate_episode(
-        result_root,
+    return _finalize_episode(
+        output_root=output_root,
+        episode_dir=episode_dir,
+        attempt_dir=attempt_dir,
+        result_root=result_root,
+        report=report,
+        protocol=protocol,
         condition=condition,
         seed=seed,
+        model=model,
         case_id=case_id,
-        bundle=bundle,
+        manifest=manifest,
     )
-    write_json(episode_dir / "adjudication.json", adjudication)
-    marker = {
-        "schema_version": "beyond-confessions-episode-1",
-        "status": "complete",
-        "episode_key": episode_key,
-        "condition": condition["id"],
-        "condition_name": condition["name"],
-        "seed": int(seed),
-        "case_id": case_id,
-        "model": model,
-        "protocol_version": protocol["protocol_version"],
-        "raw_result_root": str(result_root),
-        "raw_result_sha256": sha256_file(result_root / "summary.json"),
-        "artifact_validation": report.as_dict(),
-        "evidence_validation": evidence_validation,
-        "adjudication_file": str((episode_dir / "adjudication.json").resolve()),
-        "complete_at": __import__("datetime").datetime.now(__import__("datetime").UTC).isoformat(),
-    }
-    marker_path = episode_dir / "episode_complete.json"
-    write_json(marker_path, marker)
-    record = {
-        "episode_key": episode_key,
-        "status": "complete",
-        "condition": condition["id"],
-        "condition_name": condition["name"],
-        "seed": int(seed),
-        "case_id": case_id,
-        "episode_marker": str(marker_path.resolve()),
-        "raw_result_root": str(result_root),
-        "evidence_dir": str(evidence_dir.resolve()),
-        "adjudication_file": str((episode_dir / "adjudication.json").resolve()),
-        "audit_dir": str((episode_dir / "audits").resolve()),
-    }
-    _replace_episode_record(manifest, record)
-    _save_manifest(output_root, manifest)
-    print(json.dumps({"status": "complete", "episode_key": episode_key, "raw_result_root": str(result_root)}))
-    return record
 
 
 def _audit_one_episode(
