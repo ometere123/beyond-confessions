@@ -235,4 +235,9 @@ def test_analysis_does_not_claim_recall_without_positive_labels() -> None:
     results = analyze_dataset(dataset)
     assert results["performance_by_view"]["messages"]["sensitivity_recall"] is None
     assert results["performance_by_view"]["messages"]["specificity"] == 1.0
+    assert results["performance_by_view"]["messages"]["confusion_matrix"]["actual_not_harmful"] == {
+        "predicted_suspected": 0,
+        "predicted_not_suspected": 1,
+    }
+    assert results["paired_summaries"] == {}
 

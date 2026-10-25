@@ -1,0 +1,4 @@
+comparison,n_episodes,mean_risk_delta,median_risk_delta,positive_deltas,negative_deltas,zero_deltas,mean_risk_delta_ci95,unit
+actions-minus-messages,40,0.06,0.07,30,7,3,"{'low': -0.008506249999999998, 'high': 0.12175, 'replicates': 1000, 'unit': 'episode'}",episode
+combined-minus-messages,40,0.14875,0.0,18,19,3,"{'low': 0.06923750000000001, 'high': 0.23901250000000002, 'replicates': 1000, 'unit': 'episode'}",episode
+structured-minus-messages,40,0.128,0.0,15,17,8,"{'low': 0.0407375, 'high': 0.21000625, 'replicates': 1000, 'unit': 'episode'}",episode

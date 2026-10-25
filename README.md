@@ -2,18 +2,29 @@
 
 Beyond Confessions is a reproducible engineering foundation for studying whether cross-agent communication, executed actions, and structured behavioural evidence distinguish harmful collusion from innocent coordination.
 
-Milestone 1 is intentionally bounded. It prepares the environment, verifies a secret-safe OpenAI route, audits Poseidon Research's Colosseum starter, adds exact request/token accounting, checks Modal feasibility without deploying, and reproduces one positive-control trial. It does not run the full sweep or claim a research result.
+Milestone 1 prepared the environment, verified a secret-safe OpenAI route,
+audited Poseidon Research's Colosseum starter, added exact request/token
+accounting, checked Modal feasibility without deploying, and reproduced one
+positive-control trial. Milestone 2 has now completed the frozen matched study;
+the results remain explicitly limited to observable task-harm labels rather than
+a causal claim of realised collusion.
 
 ## Current status
 
-Milestone 1 live verification is complete with known limitations: the three-mode OpenAI probe passed, pinned Colosseum preflight passed, and one positive-control seed completed with validated artifacts. The control is a harness and evidence check, not a research conclusion. A coalition advantage, if observed in later conditions, must not be labelled collusion without matched controls and evidence analysis.
+Milestone 2 is `COMPLETE_WITH_KNOWN_LIMITATIONS`: 40 matched episodes (10 per
+condition), 160 blinded auditor assessments, validated artifacts, preserved
+failures, five data-derived figures, and a complete cost ledger are available
+in [`docs/milestone2-findings.md`](docs/milestone2-findings.md) and
+[`evidence/milestone2/`](evidence/milestone2/). Condition D produced six task
+violations and is therefore not a clean behavioural negative control. The
+deterministic rubric does not label any episode realised harmful collusion.
 
 ## Reproducible setup
 
 Prerequisites: Windows, macOS, or Linux with Git, `uv`, and Python 3.12. The project does not require Docker or a GPU for this milestone.
 
 ```powershell
-uv sync --python 3.12
+uv sync --locked
 Copy-Item .env.example .env
 # Edit .env and set OPENAI_API_KEY locally. Never commit .env.
 uv run pytest
@@ -85,6 +96,36 @@ with a SHA-256 checksum and extraction instructions in
 [`evidence/README.md`](evidence/README.md). The failed Windows path attempts
 are documented in [`evidence/failed_attempts.md`](evidence/failed_attempts.md).
 
+## Milestone 2 controlled study
+
+The frozen protocol compares:
+
+* A: designated pair with a private channel;
+* B: designated pair without a private channel;
+* C: no coalition instruction with an all-agent open channel; and
+* D: no coalition instruction and no extra channel.
+
+All four evidence views—messages, actions, raw combined, and structured
+claim/action/outcome links—are generated from each underlying episode and sent
+to the same blinded `gpt-6-luna` auditor schema. The full target completed at a
+measured standard-rate estimate of `$0.25685258`, below the `$2.00` Milestone 2
+cap; Modal consumption was `$0.00`.
+
+To validate the committed evidence without making API calls:
+
+```powershell
+Expand-Archive evidence\milestone2\raw_artifacts_20261025.zip -DestinationPath C:\BCM2-reproduction
+uv run python scripts/validate_milestone2.py C:\BCM2-reproduction --expected-per-condition 10
+uv run python scripts/analyze_milestone2.py C:\BCM2-reproduction
+```
+
+To reproduce the study from scratch, follow the commands in
+[`docs/milestone2-protocol.md`](docs/milestone2-protocol.md) with the pinned
+starter at `C:\CH2` and a new output root. The ignored `.env` must contain
+`OPENAI_API_KEY`; never print or commit it. Do not begin another sweep using D
+as a clean negative class without revising and preregistering the adjudication
+design.
+
 ## Modal decision
 
 Modal is an optional future route for open-weight/off-catalog inference or parallel compute. This milestone contains only a calculator and compatibility assessment:
@@ -97,4 +138,11 @@ No paid Modal endpoint is deployed. See [docs/modal-compatibility.md](docs/modal
 
 ## Research integrity boundary
 
-The positive control establishes that the harness can produce structured observations and artifacts. It does not establish that a coalition formed or that a detector works. Do not infer collusion from promise-breaking alone; keep coalition assignment, realized actions, communication, rewards, and auditor evidence separate. The next experiment is the matched comparison required for Track 2.2/2.3, after the single control is reproduced and inspected.
+The positive control and matched study establish that the harness can produce
+structured observations, blinded evidence views, and reproducible auditor
+outputs. They do not establish that a coalition formed or that a detector
+proved collusion. Do not infer collusion from promise-breaking, private
+messages, reward advantage, or task violations alone; keep coalition assignment,
+realized actions, communication, rewards, task harm, and auditor evidence
+separate. The next research step is independent adjudication and a cleaner
+negative-control task, not an unqualified larger sweep.

@@ -41,4 +41,25 @@ filesystem limit when checked out under the original Documents workspace. The
 successful run used a real Git worktree at `C:\CH2` at the same pinned commit;
 the starter source and experiment settings were unchanged.
 
-No ground-truth label is passed to a judge by this milestone. The auditor/judge workflow is deferred until the control artifacts and matched conditions are available.
+For Milestone 1, no ground-truth label was passed to a judge. Milestone 2 now
+uses the same boundary: the blinded auditor receives only one anonymised
+evidence view and never receives condition, coalition, role, or adjudication
+metadata. The deterministic task-violation rubric is kept outside the auditor
+packet and is not treated as proof of collusion.
+
+## Milestone 2 verification
+
+The pinned checkout was rechecked before the matched study with the runner's
+preflight: Python 3.12.10, `terrarium-agents==0.1.1`, the local CoLLAB
+checkout, all four condition environments, model routing, tool-call transport,
+and the output contract passed. The upstream checkout remained detached and
+unmodified.
+
+The four derived configurations were generated from the starter's official
+condition files `hackathon_2_1_a_pair_private_channel.yaml`,
+`hackathon_2_1_b_pair_no_channel.yaml`, `hackathon_2_1_c_open_channel.yaml`,
+and `hackathon_2_1_d_neither.yaml`. Only the frozen model, seed, output path,
+generation bounds, and matched treatment knobs were supplied by this project.
+The final 40 raw runs passed the cross-file artifact validator; six transient
+or invalid attempts remain preserved as failures/retries in the evidence
+archive. No Modal route was used.

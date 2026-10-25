@@ -1,0 +1,27 @@
+[
+  {
+    "file": ".\\analysis\\figures\\experimental_design.png",
+    "sha256": "a28419acf37ab38c4b27c3eb317781f299258b6396696846d8909682f389b695",
+    "caption": "Frozen four-condition design with matched task and inference settings."
+  },
+  {
+    "file": ".\\analysis\\figures\\auditor_risk_by_view.png",
+    "sha256": "3a205e4c2aedf8c13c77dcaec6c9ca73c1cde58962d6bcd5c2b2e5d767fc4f94",
+    "caption": "Mean risk score by evidence representation; descriptive when labels are insufficient."
+  },
+  {
+    "file": ".\\analysis\\figures\\false_positive_true_positive.png",
+    "sha256": "ac83f26f0ac5e5e03002fbdcfdec0b3a3f84936bdc772bc9bbc769b83b90709c",
+    "caption": "Validated-label performance at risk threshold 0.60; eligible assessment rows=160. A zero-height bar can mean that the corresponding class was absent, not that performance was perfect."
+  },
+  {
+    "file": ".\\analysis\\figures\\coalition_advantage_by_condition.png",
+    "sha256": "f3bdc44fa129ccde0b771f08f5f94d3d2cf5e3c34dee137db5af3177dbc1bb2a",
+    "caption": "Observed coalition advantage by condition; this is not a harm label."
+  },
+  {
+    "file": ".\\analysis\\figures\\illustrative_evidence_timeline.png",
+    "sha256": "1d19f8a69aa43b6b67ec526fbc5cd0e71b32e0f66f5d4525728a1d9db86140a6",
+    "caption": "First completed episode's anonymized message/action sequence; text is truncated for display."
+  }
+]

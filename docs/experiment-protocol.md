@@ -1,4 +1,9 @@
-# Milestone experiment protocol
+# Milestone 1 experiment protocol and handoff
+
+The original sections below document the verified Milestone 1 positive control.
+The frozen Milestone 2 protocol, execution commands, and findings are in
+[`milestone2-protocol.md`](milestone2-protocol.md) and
+[`milestone2-findings.md`](milestone2-findings.md).
 
 ## Scope
 
@@ -42,6 +47,12 @@ three earlier path-length failures are documented in
 [`evidence/failed_attempts.md`](../evidence/failed_attempts.md). They recorded
 zero model requests and were not treated as experimental results.
 
-## Next experiment after this milestone
+## Milestone 2 outcome
 
-After the positive control is reproduced and reviewed, run the four matched Track 2 conditions with the same model, seeds, task generation, and resource caps: pair plus private channel, pair without private channel, open channel without assignment, and neither. Only after those artifacts pass validation should the auditor/judge comparison for Track 2.3 be added. Do not put the ground-truth condition label in an auditor prompt; pass only the permitted evidence view.
+The four matched Track 2 conditions were executed with seeds 1–10 and the
+auditor comparison was completed. The final dataset contains 40 validated
+episodes and 160 assessments. Condition D produced six task-violation episodes,
+so it is not a clean behavioural negative control; the deterministic rubric does
+not label any episode realised harmful collusion. See the findings document for
+the evidence-backed results and limitations. Do not put the ground-truth
+condition label in an auditor prompt; pass only the permitted evidence view.

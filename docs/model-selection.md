@@ -10,6 +10,14 @@ Checked: 2026-10-25 against official OpenAI model pages. Prices are standard tok
 
 The milestone default is `gpt-6-luna` because it is the least expensive current model in the checked catalog that documents both capabilities. The live probe passed text generation, one function/tool call, and schema-valid structured output. The positive control also completed through the direct OpenAI endpoint. There is no automatic model substitution: a failed model is recorded as failed and requires an explicit model choice.
 
+Milestone 2 retained `gpt-6-luna` for both agents and the blinded auditor. The
+40-episode study plus auditor retries used 1,416 request records, 2,921,040
+input tokens, 133,525 output tokens, 1,133,488 cached input tokens, and a
+measured standard-rate estimate of `$0.25685258`. All final assessments used
+the same model ID; no fallback or silent substitution occurred. The shared
+ledger's conservative committed bound was `$0.76225960`, below the `$2.00`
+cap.
+
 The pinned starter adapter emitted `max_tokens`, which the live API rejected for
 GPT-6 Luna. The runner now translates that field to `max_completion_tokens` and
 adds `reasoning_effort=none` at the HTTP boundary, without editing the starter

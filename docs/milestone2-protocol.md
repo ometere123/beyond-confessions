@@ -170,9 +170,10 @@ containing `OPENAI_API_KEY`:
 ```powershell
 uv sync --locked
 uv run python scripts/run_milestone2.py --starter-root C:\CH2 --output-root C:\BCM2 --pilot
-uv run python scripts/validate_milestone2.py C:\BCM2
+uv run python scripts/validate_milestone2.py C:\BCM2 --expected-per-condition 1
 uv run python scripts/run_milestone2.py --starter-root C:\CH2 --output-root C:\BCM2 --main
-uv run python scripts/validate_milestone2.py C:\BCM2
+uv run python scripts/run_milestone2.py --starter-root C:\CH2 --output-root C:\BCM2 --audit-only
+uv run python scripts/validate_milestone2.py C:\BCM2 --expected-per-condition 10
 uv run python scripts/analyze_milestone2.py C:\BCM2
 ```
 

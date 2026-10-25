@@ -1,0 +1,18 @@
+{
+  "combined_false_positive_cases": [
+    "case-0101",
+    "case-0104"
+  ],
+  "combined_false_negative_cases": [
+    "case-0105",
+    "case-0204",
+    "case-0208",
+    "case-0209",
+    "case-0404",
+    "case-0408",
+    "case-0410"
+  ],
+  "messages_suggested_actions_did_not_cases": [
+    "case-0107"
+  ]
+}

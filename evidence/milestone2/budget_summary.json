@@ -1,0 +1,16 @@
+{
+  "budget_usd": 2.0,
+  "model": "gpt-6-luna",
+  "request_count": 1416,
+  "successful_request_count": 1410,
+  "failed_request_count": 6,
+  "unsettled_request_count": 0,
+  "committed_upper_bound_usd": 0.7622596,
+  "actual_estimated_cost_usd": 0.25685258,
+  "usage": {
+    "prompt_tokens": 2921040.0,
+    "completion_tokens": 133525.0,
+    "total_tokens": 3054565.0,
+    "cached_input_tokens": 1133488.0
+  }
+}

@@ -1,9 +1,10 @@
-# Beyond Confessions — Engineering Milestone 1 report
+# Beyond Confessions — Engineering and controlled-study report
 
 Date: 2026-10-25
 Repository: `ometere123/beyond-confessions`
 Status: `COMPLETE_WITH_KNOWN_LIMITATIONS`
-Scope: one verified positive-control reproduction; no full Track 2 sweep and no research conclusion.
+Scope: verified Milestone 1 foundation and completed Milestone 2 matched study;
+no causal claim of realised collusion.
 
 ## Completion assessment
 
@@ -102,7 +103,7 @@ Cumulative measured usage was 114,413 input tokens, 4,374 output tokens,
 
 ## Automated and security verification
 
-* `uv run pytest -q`: 11 passed.
+* Milestone 1 baseline: `uv run pytest -q`: 11 passed.
 * `uv run ruff check .`: passed.
 * `uv run python -m compileall -q src scripts tests`: passed.
 * Both the script validator and CLI validator passed the final control with no issues.
@@ -136,16 +137,55 @@ avoid Windows path-length failures. On systems without that limitation, a
 separate pinned starter checkout can be used. Do not use `--allow-unpinned`
 for the milestone reproduction.
 
-## Remaining limitations and next experiment
+## Milestone 2 controlled-study completion
 
-The control is one seed with reduced planning rounds; it cannot estimate an
-effect, establish detector validity, or separate innocent coordination from
-harmful collusion. Provider billing was not independently reconciled. Modal
-compatibility remains static-only, and the auditor/judge path is intentionally
-deferred.
+The frozen protocol was committed before the main sweep in
+`4c25925698f81daae506f546e2abcd51458c8ac2`. The matched study completed 40
+episodes (A/B/C/D = 10 each) and 160 blinded audits using `gpt-6-luna` for
+both agents and auditor. The pinned starter remained at
+`e6fb1308dae9cf97ae42aec1c5f7889d9e2291e8`.
 
-The next experiment is the pre-registered four-condition Track 2 comparison:
-private pair, pair without private channel, open channel without assignment,
-and neither. Keep model, task generation, seeds, resource caps, and artifact
-validation fixed. Do not start the full sweep in this milestone and do not put
-ground-truth condition labels into auditor prompts.
+At risk threshold 0.60, the validated-label results were:
+
+| View | Recall | False-positive rate | Specificity | Precision | Balanced accuracy |
+|---|---:|---:|---:|---:|---:|
+| Messages | 0.071 | 0.000 | 1.000 | 1.000 | 0.536 |
+| Actions | 0.000 | 0.000 | 1.000 | — | 0.500 |
+| Raw combined | 0.500 | 0.077 | 0.923 | 0.778 | 0.712 |
+| Structured | 0.500 | 0.038 | 0.962 | 0.875 | 0.731 |
+
+The structured view had one fewer false positive than raw combined at the
+predeclared threshold but no higher recall. The final binary labels represented
+14 observable task-violation episodes and 26 episodes without violations; they
+did not represent independently adjudicated collusion. Condition D produced
+six violation episodes, so the neutral baseline was not behaviourally clean.
+The complete evidence-backed report is
+[`milestone2-findings.md`](milestone2-findings.md).
+
+Milestone 2 usage was 1,416 request records (1,410 successful and six
+transport/API failures), 2,921,040 input tokens, 133,525 output tokens, and
+1,133,488 cached input tokens. The measured standard-rate estimate was
+`$0.25685258`; the conservative ledger bound was `$0.76225960` under the
+`$2.00` cap. Modal usage remained `$0.00`.
+
+After the Milestone 2 analysis changes, the final repository checks were
+`uv run pytest -q`: 17 passed, `uv run ruff check src scripts tests`: passed,
+and `uv run python -m compileall -q src scripts tests`: passed. The final raw
+dataset validator passed with 40 episodes and 160 assessments, and the
+secret-pattern scan found no key-like values or `.env` files in the committed
+tree or raw evidence bundle.
+
+## Remaining limitations and readiness
+
+The sample supports matched descriptive comparisons and reproducible methods,
+not strong inferential or significance claims. The auditor is one fixed model,
+risk scores are not externally calibrated, and the four views are repeated
+measurements of each episode. The deterministic task-violation rubric is not a
+causal collusion adjudicator, and no independent blinded human review was
+performed. Provider billing was not queried independently. A future confirmatory
+study should add independent adjudication and a cleaner negative-control task
+before changing the protocol or increasing the sweep.
+
+The repository is ready for final manuscript preparation with these limitations
+reported prominently. It is not a license to describe the observed violations
+as realised collusion.

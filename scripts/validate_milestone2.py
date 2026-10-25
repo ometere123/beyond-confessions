@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -34,6 +35,17 @@ def _contains_secret(value: object) -> bool:
     return any(pattern.search(text) for pattern in SECRET_PATTERNS)
 
 
+def _json_sha256(value: object) -> str:
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+
+
+def _resolve_root_path(root: Path, value: object) -> Path:
+    path = Path(str(value or ""))
+    return path if path.is_absolute() else root / path
+
+
 def validate(root: str | Path, *, expected_per_condition: int | None = None) -> dict:
     root_path = Path(root).resolve()
     issues: list[str] = []
@@ -53,6 +65,9 @@ def validate(root: str | Path, *, expected_per_condition: int | None = None) -> 
         issues.append("secret-like value found in manifest")
     episodes = [record for record in manifest.get("episodes") or [] if record.get("status") == "complete"]
     seen_keys: set[str] = set()
+    seen_case_ids: set[str] = set()
+    seen_condition_seeds: set[tuple[str, int]] = set()
+    seeds_by_condition: dict[str, set[int]] = {condition: set() for condition in ("A", "B", "C", "D")}
     condition_counts = {condition: 0 for condition in ("A", "B", "C", "D")}
     audit_count = 0
     for record in episodes:
@@ -61,12 +76,27 @@ def validate(root: str | Path, *, expected_per_condition: int | None = None) -> 
             issues.append(f"duplicate episode key: {key}")
         seen_keys.add(key)
         condition = str(record.get("condition"))
+        try:
+            seed = int(record.get("seed"))
+        except (TypeError, ValueError):
+            seed = -1
+            issues.append(f"{key}: invalid seed")
+        condition_seed = (condition, seed)
+        if condition_seed in seen_condition_seeds:
+            issues.append(f"duplicate condition/seed pair: {condition}-seed-{seed}")
+        seen_condition_seeds.add(condition_seed)
+        if condition in seeds_by_condition:
+            seeds_by_condition[condition].add(seed)
+        case_id = str(record.get("case_id"))
+        if case_id in seen_case_ids:
+            issues.append(f"duplicate case id: {case_id}")
+        seen_case_ids.add(case_id)
         if condition not in condition_counts:
             issues.append(f"unknown condition in episode: {key}")
         else:
             condition_counts[condition] += 1
-        marker_path = Path(record.get("episode_marker", ""))
-        evidence_dir = Path(record.get("evidence_dir", ""))
+        marker_path = _resolve_root_path(root_path, record.get("episode_marker"))
+        evidence_dir = _resolve_root_path(root_path, record.get("evidence_dir"))
         if not marker_path.is_file():
             issues.append(f"{key}: missing completion marker")
             continue
@@ -76,10 +106,19 @@ def validate(root: str | Path, *, expected_per_condition: int | None = None) -> 
         except (OSError, json.JSONDecodeError) as exc:
             issues.append(f"{key}: invalid marker/adjudication: {type(exc).__name__}")
             continue
-        raw_root = marker.get("raw_result_root")
-        if not raw_root:
+        try:
+            marker_seed = int(marker.get("seed"))
+        except (TypeError, ValueError):
+            marker_seed = -1
+        if marker.get("episode_key") != key or marker.get("condition") != condition or marker_seed != seed:
+            issues.append(f"{key}: completion marker identity mismatch")
+        if marker.get("case_id") != case_id:
+            issues.append(f"{key}: completion marker case id mismatch")
+        raw_root_value = marker.get("raw_result_root")
+        if not raw_root_value:
             issues.append(f"{key}: missing raw result root")
         else:
+            raw_root = _resolve_root_path(root_path, raw_root_value)
             report = validate_experiment_root(raw_root)
             if report.status != "pass":
                 issues.extend(f"{key}: raw artifact: {issue}" for issue in report.issues)
@@ -104,6 +143,10 @@ def validate(root: str | Path, *, expected_per_condition: int | None = None) -> 
                 evidence = _read_json(evidence_dir / f"{view}.json")
                 if audit.get("case_id") != record.get("case_id") or audit.get("evidence_view") != view:
                     raise ValueError("audit metadata mismatch")
+                if audit.get("model") != "gpt-6-luna":
+                    raise ValueError("audit model differs from frozen model")
+                if audit.get("input_sha256") != _json_sha256(evidence):
+                    raise ValueError("audit input hash does not match evidence packet")
                 evidence_ids = set()
                 stack = [evidence]
                 while stack:
@@ -132,6 +175,9 @@ def validate(root: str | Path, *, expected_per_condition: int | None = None) -> 
         for condition, count in condition_counts.items():
             if count != expected_per_condition:
                 issues.append(f"condition {condition}: expected {expected_per_condition} complete episodes, found {count}")
+    nonempty_seed_sets = [seeds for seeds in seeds_by_condition.values() if seeds]
+    if nonempty_seed_sets and any(seeds != nonempty_seed_sets[0] for seeds in nonempty_seed_sets[1:]):
+        issues.append("condition seed sets are not matched")
     budget_path = root_path / "budget.json"
     budget_summary = None
     if not budget_path.is_file():
