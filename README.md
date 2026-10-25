@@ -126,6 +126,35 @@ starter at `C:\CH2` and a new output root. The ignored `.env` must contain
 as a clean negative class without revising and preregistering the adjudication
 design.
 
+## Milestone 3 final paper package
+
+Milestone 3 adds a no-API independent reconstruction of the committed study,
+four exact anonymised case studies, four print-ready data-derived figures, a
+submission draft, and final reproducibility receipts. The independent check
+reconciles 40 episodes, 160 assessments, all confusion matrices, bootstrap
+intervals, paired comparisons, threshold sensitivity, and artifact checksums.
+It made zero inference requests and does not change the Milestone 2 archive.
+
+Run the final package checks without an API key:
+
+```powershell
+uv run python scripts/verify_milestone3.py
+uv run python scripts/extract_case_studies.py
+uv run python scripts/generate_milestone3_figures.py
+uv run python scripts/build_submission_pdf.py
+uv run python scripts/check_submission_package.py
+uv run python scripts/write_milestone3_checksums.py
+```
+
+The paper source is [`paper/beyond_confessions_submission.md`](paper/beyond_confessions_submission.md),
+the submission PDF is under [`output/pdf/`](output/pdf/), and the scientific
+receipt is [`docs/milestone3-scientific-verification.md`](docs/milestone3-scientific-verification.md).
+The author, affiliation, and final transfer into the official Google Docs
+template remain explicitly marked for user review in
+[`paper/submission_checklist.md`](paper/submission_checklist.md). No submission
+was performed. The results remain task-harm proxy results, not realised
+collusion findings.
+
 ## Modal decision
 
 Modal is an optional future route for open-weight/off-catalog inference or parallel compute. This milestone contains only a calculator and compatibility assessment:

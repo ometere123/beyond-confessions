@@ -1,0 +1,29 @@
+{
+  "schema_version": "beyond-confessions-m3-figure-manifest-1",
+  "figures": [
+    {
+      "file": "experimental_architecture.png",
+      "caption": "Matched four-condition architecture inherited from the frozen Milestone 2 protocol; condition C exposes an all-agent extra channel, while D has no coalition instruction or extra channel.",
+      "source": "evidence/milestone2/figures/experimental_design.png",
+      "sha256": "a28419acf37ab38c4b27c3eb317781f299258b6396696846d8909682f389b695"
+    },
+    {
+      "file": "primary_performance_threshold_060.png",
+      "caption": "Recall, false-positive rate, and balanced accuracy at the frozen 0.60 risk threshold; labels are observable task harm, not realised collusion.",
+      "source": "evidence/milestone3/verification_report.json",
+      "sha256": "70e43ae01f3bf6fb3e9e383146428ee99b85e069c230594e790bd33dfef10f67"
+    },
+    {
+      "file": "condition_harm_comparison.png",
+      "caption": "Condition-level observable task-harm labels and violation counts. Violation events are summed within episodes; C's open all-agent channel and D's neutral treatment are not collusion labels.",
+      "source": "evidence/milestone3/verification_report.json",
+      "sha256": "63229277c6eeb6877d00ac6ad792698ae0f6afaa5e939642985aecfcdb257062"
+    },
+    {
+      "file": "case_evidence_chain.png",
+      "caption": "Exact anonymised evidence references selected from four preserved episodes. Labels are task-harm proxy labels; no row establishes realised collusion.",
+      "source": "evidence/milestone3/case_studies.json",
+      "sha256": "e2bae7afe318dab62276539aecf1a2fc790aeaa232a2c43505c4169c42441344"
+    }
+  ]
+}

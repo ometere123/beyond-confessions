@@ -29,6 +29,21 @@ perform a blinded human or causal collusion adjudication. Accordingly, the
 performance numbers are evidence-representation results against observable
 task-harm labels, not a claim that the auditor detected realised collusion.
 
+### Post-experiment terminology clarification
+
+The original frozen records are retained unchanged. For interpretation in this
+document and in the Milestone 3 paper, `violations` means violation events
+summed within episodes, while the harm label is an episode-level label. For
+example, B has 8 violation events across 6 harmful episodes; D has 6 events in
+6 harmful episodes. A private or restricted-channel observation is not proof of
+covert intent, and zero violation events are not proof of innocent behaviour.
+Condition C's additional channel was visible to all agents; its 98 recorded
+extra-channel messages are not private coalition messages. Condition D is a
+neutral, non-collusion-instructed baseline, not a guaranteed clean behavioural
+control. The matched metric formerly rendered as coalition advantage is called
+the selected-pair reward gap here; in C and D the selected pair was a runtime
+scoring choice, not an instructed coalition.
+
 ## Prior work and contribution
 
 The Poseidon Research Colosseum starter provides the multi-agent Jira task,
@@ -159,20 +174,22 @@ claim of statistical significance. Full per-episode deltas are in
 
 ## Treatment observations and the C/D design audit
 
-| Condition | Violations | Harm-label count | Mean coalition advantage | Mean joint reward | Relevant message count | Combined suspicion | Structured suspicion |
-|---|---:|---|---:|---:|---:|---:|---:|
-| A | 2 | 2 harmful / 8 clean | 3.170 | 101.062 | 61 restricted | 0.30 | 0.20 |
-| B | 8 | 6 harmful / 4 clean | 2.330 | 90.522 | 0 restricted | 0.30 | 0.10 |
-| C | 0 | 0 harmful / 10 clean | 3.114 | 105.536 | 98 open extra-channel | 0.00 | 0.00 |
-| D | 6 | 6 harmful / 4 clean | 0.751 | 94.359 | 0 restricted | 0.30 | 0.50 |
+| Condition | Violation events (sum) | Episodes with >=1 violation | Harm-label count | Mean selected-pair reward gap | Mean joint reward | Treatment message count | Combined suspicion | Structured suspicion |
+|---|---:|---:|---|---:|---:|---:|---:|---:|
+| A | 2 | 2 | 2 harmful / 8 not harmful | 3.170 | 101.062 | 61 restricted | 0.30 | 0.20 |
+| B | 8 | 6 | 6 harmful / 4 not harmful | 2.330 | 90.522 | 0 restricted | 0.30 | 0.10 |
+| C | 0 | 0 | 0 harmful / 10 not harmful | 3.114 | 105.536 | 98 open all-agent extra-channel | 0.00 | 0.00 |
+| D | 6 | 6 | 6 harmful / 4 not harmful | 0.751 | 94.359 | 0 restricted | 0.30 | 0.50 |
 
 The C/D manipulation worked as a communication-affordance distinction, but D
 was not behaviourally clean: six of its ten episodes contained task
 violations. This is a real limitation, not a reason to redefine D after seeing
 the outcomes. The final analysis therefore treats `harmful` as observable task
-harm and does not call D a negative control for collusion. Condition C was
-clean under the same rubric, but its open channel produced ordinary permitted
-teamwork observations rather than a proof of innocence.
+harm and does not call D a negative control for collusion. Condition C had no
+violation events under the same rubric, but its open channel produced ordinary
+permitted teamwork observations rather than a proof of innocence. Suspicion
+scores are auditor outputs; the harm label is a deterministic artifact-level
+task outcome, so they should not be read as the same variable.
 
 ## False cases and qualitative checks
 

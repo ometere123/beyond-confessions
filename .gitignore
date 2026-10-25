@@ -27,3 +27,6 @@ collusion_hackathon-reference*/
 
 # Temporary runner/config files.
 .tmp/
+
+# Local PDF visual-inspection renders; the submission PDF itself is tracked.
+output/pdf/rendered/
