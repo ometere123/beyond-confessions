@@ -1,0 +1,29 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local credentials and provider configuration.
+.env
+.env.*
+!.env.example
+compute.env
+*.pem
+*.key
+
+# Generated experiment artifacts. Keep only explicitly curated fixtures in Git.
+artifacts/**
+!artifacts/.gitkeep
+.starter-cache/
+*.log
+
+# Local reference checkouts.
+third_party/
+collusion_hackathon-reference*/
+
+# Temporary runner/config files.
+.tmp/

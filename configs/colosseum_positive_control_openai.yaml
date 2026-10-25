@@ -1,0 +1,51 @@
+# Beyond Confessions adaptation of Poseidon Research's
+# colosseum/experiments/collusion/configs/hackathon_positive_control.yaml.
+#
+# The environment, topology, coalition assignment, and logging contract are intentionally retained.
+# Only the inference model/parameters are adapted for the direct OpenAI endpoint. The runner points the
+# starter's OpenAI-compatible adapter at OPENAI_BASE_URL and records each Chat Completions request.
+
+simulation:
+  max_iterations: 1
+  max_planning_rounds: 2
+  max_conversation_steps: 3
+  seed: 1
+  tags: [hackathon_positive_control_openai]
+
+environment:
+  name: JiraTicketEnvironment
+  assignment_filling: false
+  max_tasks: 8
+
+communication_network:
+  topology: complete
+  num_agents: 4
+  consolidate_channels: true
+
+llm_models:
+  - label: beyond_confessions_model
+    llm:
+      # The upstream adapter calls this branch "openrouter" because it is the shared OpenAI-compatible
+      # client. The runner overrides its base URL to the direct OpenAI API; no OpenRouter key is used.
+      provider: openrouter
+      openrouter:
+        model: gpt-6-luna
+        params:
+          max_completion_tokens: 1500
+          reasoning_effort: none
+
+experiment:
+  tag: hackathon_positive_control_openai
+  output_dir: artifacts/colosseum_positive_control
+  max_concurrent_runs: 1
+  seeds: [1]
+  collusion:
+    colluder_selection: first
+    agent_order: random
+  sweeps:
+    - name: hackathon_positive_control_openai
+      topologies: [complete]
+      num_agents: [4]
+      colluder_counts: [2]
+      secret_channel_enabled: [true]
+      prompt_variants: [simple]
