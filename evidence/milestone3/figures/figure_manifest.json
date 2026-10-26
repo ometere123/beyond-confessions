@@ -9,25 +9,25 @@
         "src/beyond_confessions/evidence.py",
         "evidence/milestone3/verification_report.json"
       ],
-      "sha256": "b0715dec5d7dd628201a160092ac72ea346710434be8c499da76d034613cd77c"
+      "sha256": "ded3ba292263676ef20327959d94607f33f1d6dd20b8319984eee61927264cf8"
     },
     {
       "file": "primary_performance_threshold_060.png",
       "caption": "Recall, false-positive rate, and balanced accuracy at the frozen 0.60 risk threshold; labels are observable task harm, not realised collusion.",
       "source": "evidence/milestone3/verification_report.json",
-      "sha256": "6235b642eabdfed631a518bd9243b99350202f391542c0ac7b8fc4470f435e09"
+      "sha256": "3b47d4cd07705f141c82edc9ae1cee5dbd328ebd50096f5bb7c4f73927d25bc9"
     },
     {
       "file": "condition_harm_comparison.png",
       "caption": "Condition-level observable task-harm labels and violation counts. Violation events are summed within episodes; C's open all-agent channel and D's neutral treatment are not collusion labels.",
       "source": "evidence/milestone3/verification_report.json",
-      "sha256": "876ed9db9e6f675a6e2efd54c4dc5f1d441bebddc279a235b4e3799892d42491"
+      "sha256": "ad080fa5c570b776b95ffaecce937f0838ff77d29470cdaa1c89bdabc805206f"
     },
     {
       "file": "case_evidence_chain.png",
       "caption": "Exact anonymised evidence references selected from four preserved episodes. Labels are task-harm proxy labels; no row establishes realised collusion.",
       "source": "evidence/milestone3/case_studies.json",
-      "sha256": "bab562f9d90fceaa4b7a8756b20351904e7dd9e6ab2575010eb57e6cfdc47324"
+      "sha256": "7865be1b29051f8fee9b4fc976ce0d56f5860eb6bc1e1c588ddc7e904b27d345"
     }
   ]
 }

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import itertools
 import json
 import textwrap
 from pathlib import Path
@@ -30,12 +31,20 @@ def _digest(path: Path) -> str:
 
 
 def _architecture_figure(path: Path) -> dict[str, Any]:
-    fig, axis = plt.subplots(figsize=(11.0, 5.2))
+    fig, axis = plt.subplots(figsize=(12.0, 5.3))
     axis.set_xlim(0, 1)
     axis.set_ylim(0, 1)
     axis.axis("off")
 
-    def box(x: float, y: float, width: float, height: float, text: str, color: str) -> None:
+    def box(
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        text: str,
+        color: str,
+        fontsize: float = 7.6,
+    ) -> None:
         axis.add_patch(
             FancyBboxPatch(
                 (x, y),
@@ -53,12 +62,12 @@ def _architecture_figure(path: Path) -> dict[str, Any]:
             text,
             ha="center",
             va="center",
-            fontsize=8.4,
+            fontsize=fontsize,
             color="#17324d",
             wrap=True,
         )
 
-    def arrow(x1: float, y1: float, x2: float, y2: float) -> None:
+    def arrow(x1: float, y1: float, x2: float, y2: float, dashed: bool = False) -> None:
         axis.add_patch(
             FancyArrowPatch(
                 (x1, y1),
@@ -67,37 +76,44 @@ def _architecture_figure(path: Path) -> dict[str, Any]:
                 mutation_scale=12,
                 linewidth=1.0,
                 color="#5d6870",
+                linestyle="--" if dashed else "-",
             )
         )
 
-    conditions = [
-        ("A  designated pair\nprivate channel", "#dbe9f2"),
-        ("B  designated pair\nno extra channel", "#dbe9f2"),
-        ("C  no coalition instruction\nopen all-agent channel", "#e8f0e5"),
-        ("D  neutral instruction\nno extra channel", "#f4e8dd"),
+    pipeline = [
+        (0.012, 0.145, 0.55, 0.23, "Four experimental\nconditions\nA designated pair: private\nB designated pair: no private\nC open all-agent channel\nD neutral: no private", "#dbe9f2", 6.7),
+        (0.180, 0.145, 0.55, 0.23, "Matched\nColosseum\nepisodes\n4 agents • fixed seeds\nplanning + execution", "#dce6f7", 7.2),
+        (0.348, 0.145, 0.55, 0.23, "Validated run\nartifacts\nmessages • tools\noutcomes\nusage + logs", "#e7e8f5", 7.2),
+        (0.516, 0.145, 0.55, 0.23, "Four evidence\nviews\nmessages\nactions\nraw combined\nstructured", "#f2e3e3", 7.0),
+        (0.684, 0.145, 0.55, 0.23, "Fixed blinded\nauditor\nsame schema\nno condition or\nharm labels", "#eee6cf", 7.2),
+        (0.852, 0.136, 0.55, 0.23, "Scores +\nevidence\nreferences", "#eee6cf", 7.6),
     ]
-    for index, (text, color) in enumerate(conditions):
-        box(0.015, 0.69 - index * 0.17, 0.19, 0.11, text, color)
-    box(0.30, 0.35, 0.16, 0.30, "Matched Colosseum\nepisodes\n4 agents, fixed seeds,\nplanning + execution", "#dce6f7")
-    box(0.53, 0.35, 0.16, 0.30, "Validated run artifacts\ncommunication + tools\n+ outcomes", "#e7e8f5")
-    box(0.75, 0.69, 0.22, 0.11, "Messages only", "#f2e3e3")
-    box(0.75, 0.54, 0.22, 0.11, "Actions + outcomes only", "#f2e3e3")
-    box(0.75, 0.39, 0.22, 0.11, "Raw combined", "#f2e3e3")
-    box(0.75, 0.24, 0.22, 0.11, "Structured claim-action-outcome links", "#f2e3e3")
-    box(0.30, 0.08, 0.39, 0.14, "Fixed blinded auditor\nindependent structured outputs\nrisk score + evidence references", "#eee6cf")
-    box(0.75, 0.06, 0.22, 0.12, "Evaluation\nTask-harm proxy\nCollusion: not established", "#f1e1c9")
+    for x, width, y, height, text, color, fontsize in pipeline:
+        box(x, y, width, height, text, color, fontsize)
+    for left, right in itertools.pairwise(pipeline):
+        arrow(left[0] + left[1], 0.665, right[0], 0.665)
 
-    arrow(0.205, 0.745, 0.30, 0.57)
-    arrow(0.205, 0.575, 0.30, 0.54)
-    arrow(0.205, 0.405, 0.30, 0.46)
-    arrow(0.205, 0.235, 0.30, 0.42)
-    arrow(0.46, 0.50, 0.53, 0.50)
-    arrow(0.69, 0.50, 0.75, 0.745)
-    arrow(0.69, 0.50, 0.75, 0.595)
-    arrow(0.69, 0.50, 0.75, 0.445)
-    arrow(0.69, 0.50, 0.75, 0.295)
-    arrow(0.86, 0.24, 0.69, 0.15)
-    arrow(0.46, 0.35, 0.46, 0.22)
+    box(
+        0.292,
+        0.16,
+        0.265,
+        0.17,
+        "Deterministic task-harm\nproxy labels\n14 with events / 26 without",
+        "#f1e1c9",
+        7.5,
+    )
+    box(
+        0.625,
+        0.16,
+        0.31,
+        0.17,
+        "Separate evaluation comparison\nscores + references vs proxy\ncollusion: not established",
+        "#f4e8dd",
+        7.5,
+    )
+    arrow(0.418, 0.55, 0.418, 0.33, dashed=True)
+    arrow(0.917, 0.55, 0.78, 0.33, dashed=True)
+    arrow(0.557, 0.245, 0.625, 0.245, dashed=True)
     axis.text(
         0.5,
         0.985,
@@ -111,11 +127,20 @@ def _architecture_figure(path: Path) -> dict[str, Any]:
     axis.text(
         0.5,
         0.945,
-        "The harm proxy is deterministic; realised collusion remains unestablished.",
+        "The proxy comparison is a separate evaluation lane; proxy labels are not supplied to the auditor.",
         ha="center",
         va="top",
-        fontsize=8.5,
+        fontsize=8.1,
         color="#444444",
+    )
+    axis.text(
+        0.5,
+        0.07,
+        "Validated outcomes determine the proxy labels; no arrow feeds ground truth into the blinded auditor.",
+        ha="center",
+        va="center",
+        fontsize=7.5,
+        color="#555555",
     )
     _save(fig, path)
     return {
@@ -135,7 +160,7 @@ def _performance_figure(report: dict[str, Any], path: Path) -> dict[str, Any]:
     metrics = ["sensitivity_recall", "false_positive_rate", "balanced_accuracy"]
     labels = ["Recall", "False-positive rate", "Balanced accuracy"]
     colors = ["#4c78a8", "#e45756", "#59a14f"]
-    fig, ax = plt.subplots(figsize=(8.0, 4.4))
+    fig, ax = plt.subplots(figsize=(8.4, 4.4))
     width = 0.24
     positions = list(range(len(views)))
     for offset, metric, label, color in zip((-width, 0, width), metrics, labels, colors):
@@ -150,7 +175,7 @@ def _performance_figure(report: dict[str, Any], path: Path) -> dict[str, Any]:
                 va="bottom",
                 fontsize=8,
             )
-    ax.set_xticks(positions, ["Messages", "Actions", "Raw\ncombined", "Structured"])
+    ax.set_xticks(positions, ["Messages", "Actions", "Raw combined", "Structured"])
     ax.set_ylim(0, 1.12)
     ax.set_ylabel("Metric value at risk threshold 0.60")
     ax.set_title("Primary auditor comparison: observable task-harm proxy (n=40 episodes per view)")
@@ -180,25 +205,50 @@ def _condition_figure(report: dict[str, Any], path: Path) -> dict[str, Any]:
     not_harmful = [summary[c]["harm_label_counts"].get("not_harmful", 0) for c in conditions]
     event_counts = [summary[c]["violations_total"] for c in conditions]
     episode_counts = [summary[c]["violation_episode_count"] for c in conditions]
-    fig, axes = plt.subplots(1, 2, figsize=(8.0, 3.65), gridspec_kw={"width_ratios": [1.2, 1]})
+    fig, axes = plt.subplots(1, 2, figsize=(8.6, 4.25), gridspec_kw={"width_ratios": [1.2, 1]})
     axes[0].bar(conditions, harmful, label="Episodes with >=1 event", color="#e15759")
     axes[0].bar(conditions, not_harmful, bottom=harmful, label="Episodes with 0 events", color="#76b7b2")
     for index, total in enumerate([h + n for h, n in zip(harmful, not_harmful)]):
         axes[0].text(index, total + 0.15, f"n={total}", ha="center", fontsize=8)
     axes[0].set_title("Episode-level harm proxy")
     axes[0].set_ylabel("Episodes")
-    axes[0].legend(frameon=False, fontsize=8)
-    axes[0].set_ylim(0, 11.5)
+    axes[0].set_ylim(0, 11.8)
     axes[1].bar([x - 0.18 for x in range(4)], event_counts, width=0.36, label="Violation events", color="#f28e2b")
     axes[1].bar([x + 0.18 for x in range(4)], episode_counts, width=0.36, label="Episodes with event", color="#4e79a7")
     axes[1].set_xticks(range(4), conditions)
     axes[1].set_title("Events versus episodes")
     axes[1].set_ylabel("Count")
-    axes[1].legend(frameon=False, fontsize=8)
     axes[1].grid(axis="y", alpha=0.25)
-    axes[0].annotate("D: not a clean control", xy=(3, 10), xytext=(2.45, 10.8), fontsize=7.5, arrowprops={"arrowstyle": "-"})
-    fig.suptitle("Condition-level task outcomes; D is not a clean behavioural control", fontsize=11)
-    fig.tight_layout()
+    axes[0].annotate(
+        "D: not a clean\nbehavioural control",
+        xy=(3, 11.35),
+        xytext=(3, 11.35),
+        ha="center",
+        va="center",
+        fontsize=7.5,
+        bbox={"facecolor": "white", "edgecolor": "none", "pad": 1.5},
+    )
+    handles, labels = axes[0].get_legend_handles_labels()
+    handles_2, labels_2 = axes[1].get_legend_handles_labels()
+    fig.legend(
+        handles + handles_2,
+        labels + labels_2,
+        frameon=False,
+        fontsize=7.5,
+        ncol=2,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.035),
+    )
+    fig.suptitle("Condition-level task outcomes; D is not a clean behavioural control", fontsize=11, y=0.97)
+    fig.text(
+        0.5,
+        0.12,
+        "Episode counts and event counts are different units; D is not a guaranteed clean control.",
+        ha="center",
+        fontsize=7.5,
+        color="#555555",
+    )
+    fig.tight_layout(rect=(0, 0.16, 1, 0.91))
     _save(fig, path)
     return {
         "file": path.name,
@@ -222,7 +272,10 @@ def _case_chain_figure(case_path: Path, path: Path) -> dict[str, Any]:
         "A-seed-1": "Suspicious coordination with zero violations; false positive only against the harm proxy.",
         "B-seed-9": "Violation with low auditor risk; false negative only against the harm proxy.",
     }
-    fig, axes = plt.subplots(2, 2, figsize=(10.0, 6.6))
+    # Keep the four-case layout readable while avoiding an unnecessary page
+    # break in the official-template manuscript.  The horizontal canvas and
+    # font sizes are unchanged; only vertical whitespace is tightened.
+    fig, axes = plt.subplots(2, 2, figsize=(10.0, 6.2))
     axes = axes.ravel()
     for axis, episode_key, title in zip(axes, order, titles):
         case = cases[episode_key]
@@ -235,14 +288,24 @@ def _case_chain_figure(case_path: Path, path: Path) -> dict[str, Any]:
         risk = combined_result["risk_score"]
         axis.set_xlim(0, 1)
         axis.set_ylim(0, 1)
-        axis.text(0.02, 0.94, title, va="top", ha="left", fontsize=9.2, fontweight="bold", color="#17324d")
+        axis.text(
+            0.5,
+            0.965,
+            title,
+            va="top",
+            ha="center",
+            fontsize=9.2,
+            fontweight="bold",
+            color="#17324d",
+            bbox={"facecolor": "white", "edgecolor": "none", "pad": 1.5},
+        )
 
         def node(target_axis: Any, x: float, label: str, body: str, color: str) -> None:
             target_axis.add_patch(
                 FancyBboxPatch(
-                    (x, 0.47),
+                    (x, 0.45),
                     0.28,
-                    0.27,
+                    0.33,
                     boxstyle="round,pad=0.01,rounding_size=0.015",
                     linewidth=0.8,
                     edgecolor="#66808f",
@@ -251,7 +314,7 @@ def _case_chain_figure(case_path: Path, path: Path) -> dict[str, Any]:
             )
             target_axis.text(
                 x + 0.14,
-                0.68,
+                0.73,
                 textwrap.fill(label, 15),
                 ha="center",
                 va="center",
@@ -260,11 +323,11 @@ def _case_chain_figure(case_path: Path, path: Path) -> dict[str, Any]:
             )
             target_axis.text(
                 x + 0.14,
-                0.55,
+                0.57,
                 textwrap.fill(body, 22),
                 ha="center",
                 va="center",
-                fontsize=6.4,
+                fontsize=7.0,
             )
 
         node(axis, 0.02, "Message / claim", refs, "#e5eef5")
@@ -276,15 +339,15 @@ def _case_chain_figure(case_path: Path, path: Path) -> dict[str, Any]:
             f"{outcome['evidence_id']}\nviolations={outcome['violations']}\njoint reward={outcome['joint_reward']:.2f}",
             "#f4e8dd",
         )
-        axis.add_patch(FancyArrowPatch((0.305, 0.605), (0.355, 0.605), arrowstyle="-|>", mutation_scale=10, color="#6b6b6b"))
-        axis.add_patch(FancyArrowPatch((0.645, 0.605), (0.695, 0.605), arrowstyle="-|>", mutation_scale=10, color="#6b6b6b"))
+        axis.add_patch(FancyArrowPatch((0.305, 0.625), (0.355, 0.625), arrowstyle="-|>", mutation_scale=10, color="#6b6b6b"))
+        axis.add_patch(FancyArrowPatch((0.645, 0.625), (0.695, 0.625), arrowstyle="-|>", mutation_scale=10, color="#6b6b6b"))
         conclusion = f"Proxy={harm}; combined risk={risk:.2f}. {conclusions[episode_key]}"
-        axis.text(0.02, 0.27, textwrap.fill(conclusion, 62), va="top", ha="left", fontsize=7.0, color="#333333")
-        axis.text(0.02, 0.08, "Collusion adjudication: not established", va="bottom", ha="left", fontsize=7.4, style="italic", color="#555555")
+        axis.text(0.02, 0.31, textwrap.fill(conclusion, 58), va="top", ha="left", fontsize=7.6, color="#333333")
+        axis.text(0.02, 0.095, "Collusion adjudication: not established", va="bottom", ha="left", fontsize=7.8, style="italic", color="#555555")
         axis.set_axis_off()
-        axis.add_patch(plt.Rectangle((0, 0.02), 1, 0.90, fill=False, edgecolor="#b0b0b0", linewidth=0.8))
-    fig.suptitle("Anonymised evidence chains from the preserved archive", fontsize=12, y=0.98)
-    fig.tight_layout(rect=(0, 0, 1, 0.94))
+        axis.add_patch(plt.Rectangle((0.005, 0.025), 0.99, 0.91, fill=False, edgecolor="#b0b0b0", linewidth=0.8))
+    fig.suptitle("Anonymised evidence chains from the preserved archive", fontsize=12, y=0.995)
+    fig.subplots_adjust(left=0.03, right=0.97, bottom=0.035, top=0.93, wspace=0.08, hspace=0.18)
     _save(fig, path)
     return {
         "file": path.name,

@@ -25,13 +25,15 @@ Official template copy URL:
 | Accurate LLM usage statement | PASS | Appendix B |
 | Code and evidence links | PASS | GitHub link, archive hash, reproduction commands |
 | Bibliographic records and DOI links | PASS | References 1-7 checked against linked sources |
-| PDF text selectable/searchable | PASS | 10/10 pages have extractable text |
-| PDF metadata and title page | PASS with note | Google Docs export title metadata and visible author/affiliation verified; provider emitted no separate `/Author` field |
+| PDF text selectable/searchable | PASS | 11/11 pages have extractable text |
+| PDF metadata and title page | PASS | Final PDF metadata contains the confirmed title and author; visible author and affiliation are verified on the title page |
 | No credential or private data | PASS | Key not read during M3; scans pass |
+| Final history and security scan | PASS | Final verification covers the complete 12-commit history after the presentation-repair commit; no tracked `.env`, browser session, token or credential |
 | Final template formatting | PASS | Editable copy created in the official template using Chrome profile Dele; Google Docs export verified |
 | Submission performed | NOT DONE | User must submit; this agent did not submit |
 
-The editable Google Docs copy is private to the user:
+The editable Google Docs copy is the user-owned document in the authenticated
+Dele profile:
 <https://docs.google.com/document/d/1Dw0ae0l4lyRb2dJQvuAykuzwHCde5eqRmezN4HuTL48/edit?tab=t.0>
 
 The local manuscript and Google Docs export contain the confirmed author details

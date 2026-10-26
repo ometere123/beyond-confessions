@@ -182,16 +182,17 @@ the official Apart sprint page are linked in the paper.
 The official sprint page specifies the report structure, a 150-250 word
 abstract, an eight-page maximum excluding references/appendices, and a required
 Limitations and Dual-Use / Ethical Considerations appendix. An editable copy was
-created in that official template with Chrome profile `Dele`, kept private to
-the user's Google Drive, and exported directly from Google Docs. The copy URL
-is recorded in `paper/submission_checklist.md`. The final export has 11 pages;
-the main text occupies pages 1-8 and references/appendices occupy the excluded
-material on pages 9-11. The title metadata is present in the PDF and the
-confirmed author and affiliation are rendered on the title page. Google Docs'
-direct export did not emit a separate PDF `/Author` metadata field; this is
-recorded in the machine-readable QA receipt rather than repaired by
-post-processing, so the committed file remains an authentic Google Docs
-export.
+created in that official template with Chrome profile `Dele` and exported from
+Google Docs. The copy URL is recorded in `paper/submission_checklist.md`. The
+final export has 11 pages; the main text occupies pages 1-8 and
+references/appendices occupy the excluded material on pages 9-11. The final
+committed PDF candidate preserves the Google Docs-rendered page content and has
+the confirmed title and author metadata; the metadata-only normalization did not
+alter page content, links, figures, or extracted text.
+
+The final repository security scan covers the complete 12-commit history after
+the presentation-repair commit. It found no tracked `.env`, browser session,
+token, API key, or credential-like material.
 
 ## Final readiness assessment
 
