@@ -72,6 +72,8 @@ def main() -> int:
 
     required_markers = (
         "Beyond Confessions: What Can Message-Action Evidence Really Establish About AI-Agent Collusion?",
+        "Ometere Dele-Alufec",
+        "Independent Researcher, Nigeria",
         "Limitations and Dual-Use / Ethical Considerations",
         "AI tools were used",
         "H1 was not supported",
@@ -81,6 +83,14 @@ def main() -> int:
     for marker in required_markers:
         if marker not in source_text:
             failures.append(f"manuscript marker missing: {marker}")
+    for forbidden in (
+        "AUTHOR NAME - REVIEW REQUIRED",
+        "AFFILIATION - REVIEW REQUIRED",
+        "Submission draft",
+        "submission draft",
+    ):
+        if forbidden in source_text:
+            failures.append(f"draft-only manuscript marker remains: {forbidden}")
 
     pdf_pages = 0
     selectable_pages = 0
@@ -103,12 +113,10 @@ def main() -> int:
                 failures.append("PDF references heading not found")
         except (OSError, PdfReadError, ValueError) as exc:
             failures.append(f"PDF could not be parsed: {exc}")
-    if pdf_pages != 7:
-        failures.append(f"unexpected PDF page count: {pdf_pages}")
     if selectable_pages != pdf_pages:
         failures.append(f"not all PDF pages have selectable text: {selectable_pages}/{pdf_pages}")
-    if main_text_pages != 5:
-        failures.append(f"unexpected main-text page count: {main_text_pages}")
+    if main_text_pages is None or not 1 <= main_text_pages <= 8:
+        failures.append(f"main-text page count outside 1-8: {main_text_pages}")
     if CREDENTIAL_RE.search(pdf_text):
         failures.append("credential-like material detected in PDF text")
     if "OPENAI_API_KEY" + "=" in pdf_text:
@@ -156,8 +164,7 @@ def main() -> int:
 
     if "https://docs.google.com/document/d/1Y5wd3VRbXU5N08BvAGiJUQTaWbMCSPjhzXsR-ozuehg/copy" not in source_text:
         reviews.append("official Google Docs template URL should be retained in the final submission workflow")
-    reviews.append("author and affiliation placeholders require user review")
-    reviews.append("automated environment could not authenticate to the official Google Docs copy URL")
+    reviews.append("requested Chrome profile Dele is unavailable to the browser connector")
 
     report = {
         "schema_version": "beyond-confessions-m3-submission-qa-1",
@@ -178,7 +185,7 @@ def main() -> int:
             "credential_scan": not bool(CREDENTIAL_RE.search(pdf_text)),
             "github_link_present": "https://github.com/ometere123/beyond-confessions" in source_text,
         },
-        "template_status": "review_required_official_google_docs_copy_inaccessible",
+        "template_status": "blocked_requested_dele_chrome_profile_unavailable",
         "failures": failures,
         "review_items": reviews,
     }

@@ -130,7 +130,7 @@ design.
 
 Milestone 3 adds a no-API independent reconstruction of the committed study,
 four exact anonymised case studies, four print-ready data-derived figures, a
-submission draft, and final reproducibility receipts. The independent check
+submission candidate, and final reproducibility receipts. The independent check
 reconciles 40 episodes, 160 assessments, all confusion matrices, bootstrap
 intervals, paired comparisons, threshold sensitivity, and artifact checksums.
 It made zero inference requests and does not change the Milestone 2 archive.
@@ -149,8 +149,10 @@ uv run python scripts/write_milestone3_checksums.py
 The paper source is [`paper/beyond_confessions_submission.md`](paper/beyond_confessions_submission.md),
 the submission PDF is under [`output/pdf/`](output/pdf/), and the scientific
 receipt is [`docs/milestone3-scientific-verification.md`](docs/milestone3-scientific-verification.md).
-The author, affiliation, and final transfer into the official Google Docs
-template remain explicitly marked for user review in
+The author and affiliation are confirmed in the local manuscript. Final
+transfer into the official Google Docs template remains blocked because the
+requested `Dele` Chrome profile is not exposed to the browser connector; the
+exact blocker is recorded in
 [`paper/submission_checklist.md`](paper/submission_checklist.md). No submission
 was performed. The results remain task-harm proxy results, not realised
 collusion findings.

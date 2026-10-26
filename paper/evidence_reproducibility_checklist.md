@@ -1,6 +1,6 @@
 # Evidence and reproducibility checklist
 
-Status date: 2026-10-25  
+Status date: 2026-10-26  
 Archive: `evidence/milestone2/raw_artifacts_20261025.zip`  
 Archive SHA-256: `25cf15f33703c58b1fa0766e19dae4b76b7326887ead2a7aa38ec2797fe23f56`
 
@@ -27,8 +27,8 @@ Archive SHA-256: `25cf15f33703c58b1fa0766e19dae4b76b7326887ead2a7aa38ec2797fe23f
 | Final PDF checksumed | PASS | `evidence/milestone3/checksums.sha256` |
 | Secrets excluded | PASS | Ignored `.env`; repository/history scans |
 | Independent reproduction from fresh extraction | PASS | M2 validator and analysis passed on portable extraction |
-| Official template transfer | REVIEW | Google Docs copy URL requires user-authenticated review |
-| Author and affiliation | REVIEW | Placeholders intentionally remain in source and PDF |
+| Official template transfer | BLOCKED | Requested Dele Chrome profile is unavailable to the browser connector |
+| Author and affiliation | PASS | Ometere Dele-Alufec; Independent Researcher, Nigeria |
 
 ## No-API verification commands
 

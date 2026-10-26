@@ -1,8 +1,8 @@
 # Milestone 3 scientific verification report
 
-Date: 2026-10-25  
+Date: 2026-10-26  
 Starting main SHA: `432e0fd5b3a43bd087ec53236c6930c952b694b9`  
-Status: `VERIFIED_EVIDENCE_AND_SUBMISSION_DRAFT; USER_REVIEW_REQUIRED`
+Status: `VERIFIED_LOCAL_PACKAGE; GOOGLE_DOCS_TRANSFER_BLOCKED`
 
 ## Scope and non-negotiable evidence boundary
 
@@ -182,17 +182,17 @@ the official Apart sprint page are linked in the paper.
 The official sprint page specifies the report structure, a 150-250 word
 abstract, an eight-page maximum excluding references/appendices, and a required
 Limitations and Dual-Use / Ethical Considerations appendix. The official
-Google Docs copy URL is preserved in the submission checklist, but this
-environment could not authenticate to retrieve the editable copy. The PDF is
-therefore a submission-ready structured draft, not a claim that the final
-Google Docs template transfer has been completed. Author and affiliation
-fields remain visibly marked for user review.
+Google Docs copy URL is preserved in the submission checklist, but the
+requested Chrome profile `Dele` is not exposed to the browser connector. The
+local manuscript contains the confirmed author and affiliation details. The
+PDF is a verified local candidate, not a claim that the final Google Docs
+template transfer or Google Docs export has been completed.
 
 ## Final readiness assessment
 
 The scientific evidence package is ready for manuscript review: the preserved
 archive, independent recalculation, source audit, figures, cases, cost ledger,
-and no-API QA receipts agree. The manuscript is ready for the user to replace
-the author/affiliation placeholders and transfer or confirm formatting in the
-official template. It is not ready to submit until those human-owned fields
-and the final template transfer are reviewed. No submission was performed.
+and no-API QA receipts agree. The manuscript is ready for transfer into the
+official template. It is blocked from final template verification until the
+`Dele` Chrome profile is exposed to computer use or the user completes the
+transfer. No submission was performed.

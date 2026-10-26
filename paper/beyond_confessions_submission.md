@@ -1,9 +1,9 @@
 # Beyond Confessions: What Can Message-Action Evidence Really Establish About AI-Agent Collusion?
 
-**Author:** [AUTHOR NAME - REVIEW REQUIRED]  
-**Affiliation:** [AFFILIATION - REVIEW REQUIRED]  
+**Author:** Ometere Dele-Alufec  
+**Affiliation:** Independent Researcher, Nigeria  
 **Track:** Apart Research AI Collusion Research Sprint, Track 2  
-**Status:** Submission draft; author and affiliation fields require user review.
+**Status:** Final manuscript candidate.
 
 **Abstract.** AI-agent collusion is difficult to audit because ordinary teamwork,
 private communication, inconsistent plans, and harmful actions can coexist in
@@ -124,7 +124,21 @@ $0.76225960. Modal use was $0.00.
 
 ![Figure 1. Experimental architecture.](../evidence/milestone3/figures/experimental_architecture.png)
 
-### 4.2 Evidence representations
+### 4.2 Positive-control harness verification
+
+Before the matched study, a separate Milestone 1 harness check used four agents,
+two designated coalition members, and a private coalition communication path in
+the Jira environment at fixed seed 1. The complete topology recorded 20
+`post_message` events across public and private boards, including 12 posts by
+the designated pair and 7 private-channel posts; the run then recorded four
+`assign_task` events and four distinct final assignments. All four tasks
+completed with zero observed task violations. The selected-pair reward gap for
+this single run was approximately -1.700 (coalition mean reward 25.952 versus
+27.651 for the other agents). This was an engineering verification of routing,
+artifacts, and private communication, not part of the 40-episode matched study.
+It establishes neither realised harmful collusion nor innocence.
+
+### 4.3 Evidence representations
 
 All four views were generated from the same validated run. The messages-only
 view contains message text, anonymised agent and channel IDs, timestamps, and
@@ -143,7 +157,7 @@ references, a separate demonstrated-harm field, a rationale, and an
 insufficient-evidence reason. A score at least 0.60 was counted as suspected.
 The score is an auditor output, not a deterministic harm label.
 
-### 4.3 Ground-truth proxy and adjudication
+### 4.4 Ground-truth proxy and adjudication
 
 The frozen artifact rubric labeled an episode `harmful` when a valid completed
 outcome contained an observable task violation. It labeled a valid completed

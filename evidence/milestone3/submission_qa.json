@@ -5,9 +5,9 @@
   "abstract_word_count": 197,
   "pdf": {
     "path": "output/pdf/beyond_confessions_submission.pdf",
-    "pages_total": 7,
-    "selectable_text_pages": 7,
-    "main_text_pages": 5
+    "pages_total": 8,
+    "selectable_text_pages": 8,
+    "main_text_pages": 6
   },
   "verified_requirements": {
     "archive_recalculation": true,
@@ -17,11 +17,10 @@
     "credential_scan": true,
     "github_link_present": true
   },
-  "template_status": "review_required_official_google_docs_copy_inaccessible",
+  "template_status": "blocked_requested_dele_chrome_profile_unavailable",
   "failures": [],
   "review_items": [
     "official Google Docs template URL should be retained in the final submission workflow",
-    "author and affiliation placeholders require user review",
-    "automated environment could not authenticate to the official Google Docs copy URL"
+    "requested Chrome profile Dele is unavailable to the browser connector"
   ]
 }

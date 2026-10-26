@@ -178,7 +178,7 @@ def _table(lines: list[str], styles: dict[str, ParagraphStyle]) -> Table:
         widths = [1.55 * inch, 1.85 * inch, 1.55 * inch, 2.3 * inch]
     else:
         widths = [7.1 * inch / column_count] * column_count
-    result = Table(rows, colWidths=widths, repeatRows=1, hAlign="LEFT")
+    result = Table(rows, colWidths=widths, repeatRows=1, splitByRow=0, hAlign="LEFT")
     result.setStyle(
         TableStyle(
             [
@@ -199,7 +199,7 @@ def _table(lines: list[str], styles: dict[str, ParagraphStyle]) -> Table:
 def _image(path: Path, caption: str, styles: dict[str, ParagraphStyle]) -> list[Flowable]:
     image = Image(str(path))
     max_width = 7.1 * inch
-    max_height = 3.25 * inch
+    max_height = 4.25 * inch if path.name == "case_evidence_chain.png" else 3.25 * inch
     scale = min(max_width / image.imageWidth, max_height / image.imageHeight)
     image.drawWidth = image.imageWidth * scale
     image.drawHeight = image.imageHeight * scale
@@ -307,7 +307,7 @@ def _footer(canvas: object, document: object) -> None:
     canvas.line(0.55 * inch, 0.38 * inch, 7.95 * inch, 0.38 * inch)
     canvas.setFont("Helvetica", 7.2)
     canvas.setFillColor(colors.HexColor("#5d6870"))
-    canvas.drawString(0.55 * inch, 0.22 * inch, "Beyond Confessions - submission draft")
+    canvas.drawString(0.55 * inch, 0.22 * inch, "Beyond Confessions - Ometere Dele-Alufec")
     canvas.drawRightString(7.95 * inch, 0.22 * inch, f"Page {canvas.getPageNumber()}")
     canvas.restoreState()
 
@@ -341,7 +341,7 @@ def main() -> int:
         topMargin=0.52 * inch,
         bottomMargin=0.52 * inch,
         title="Beyond Confessions: What Can Message-Action Evidence Really Establish About AI-Agent Collusion?",
-        author="[AUTHOR NAME - REVIEW REQUIRED]",
+        author="Ometere Dele-Alufec",
     )
     doc.addPageTemplates([PageTemplate(id="main", frames=[frame], onPage=_footer)])
     doc.build(story)
