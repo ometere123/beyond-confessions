@@ -1,9 +1,8 @@
-# Beyond Confessions: What Can Message-Action Evidence Really Establish About AI-Agent Collusion?
+# Beyond Confessions: What Can Message–Action Evidence Really Establish About AI-Agent Collusion?
 
 **Author:** Ometere Dele-Alufec  
 **Affiliation:** Independent Researcher, Nigeria  
 **Track:** Apart Research AI Collusion Research Sprint, Track 2  
-**Status:** Final manuscript candidate.
 
 **Abstract.** AI-agent collusion is difficult to audit because ordinary teamwork,
 private communication, inconsistent plans, and harmful actions can coexist in
@@ -93,6 +92,15 @@ negative controls. A runtime pair is still selected in C and D for matched
 scoring, but it is not prompt-designated and is not shown to the auditor. C's
 extra channel is open to all agents. A private or restricted-channel observation
 is not evidence of covert intent by itself.
+
+The treatment contrasts are deliberately local rather than a claim of a fully
+identified factorial effect: A versus B holds the designated-pair instruction
+fixed while removing the private affordance; C versus D compares the open
+all-agent channel with no extra channel when no pair is designated; and A/B
+versus C/D changes the coalition instruction as well as the available channel.
+These contrasts support matched descriptive comparisons, but they cannot
+separately identify intent, channel effects, and task difficulty from this
+archive alone.
 
 The frozen protocol defined four hypotheses. H1 predicted that raw combined
 evidence would reduce false-positive rate at a fixed validated-harm recall
@@ -349,34 +357,34 @@ and the foundation for a stronger next study.
 [1] Nakamura, M., Kumar, A., Das, S., Abdelnabi, S., Mahmud, S., Fioretto, F.,
 Zilberstein, S., and Bagdasarian, E. (2026). *Colosseum: Auditing Collusion in
 Cooperative Multi-Agent Systems*. arXiv:2602.15198. DOI:
-https://doi.org/10.48550/arXiv.2602.15198.
+https://doi.org/10.48550/arXiv.2602.15198
 
 [2] Nakamura, M., Kumar, A., Mahmud, S., Abdelnabi, S., Zilberstein, S., and
 Bagdasarian, E. (2025). *Terrarium: Revisiting the Blackboard for Multi-Agent
 Safety, Privacy, and Security Studies*. arXiv:2510.14312. DOI:
-https://doi.org/10.48550/arXiv.2510.14312.
+https://doi.org/10.48550/arXiv.2510.14312
 
 [3] Fish, S., Gonczarowski, Y. A., and Shorrer, R. I. (2024). *Algorithmic
 Collusion by Large Language Models*. arXiv:2404.00806, version accessed 2026.
-DOI: https://doi.org/10.48550/arXiv.2404.00806.
+DOI: https://doi.org/10.48550/arXiv.2404.00806
 
 [4] Hammond, L., Chan, A., Clifton, J., Hoelscher-Obermaier, J., Khan, A.,
 McLean, E., Smith, C., Barfuss, W., Foerster, J., Gavenciak, T., et al. (2025).
 *Multi-Agent Risks from Advanced AI*. Cooperative AI Foundation Technical
-Report 1, arXiv:2502.14143. DOI: https://doi.org/10.48550/arXiv.2502.14143.
+Report 1, arXiv:2502.14143. DOI: https://doi.org/10.48550/arXiv.2502.14143
 
 [5] Ren, Q., Xie, S., Wei, L., Yin, Z., Yan, J., Ma, L., and Shao, J. (2025).
 *When Autonomy Goes Rogue: Preparing for Risks of Multi-Agent Collusion in
 Social Systems*. arXiv:2507.14660. DOI:
-https://doi.org/10.48550/arXiv.2507.14660.
+https://doi.org/10.48550/arXiv.2507.14660
 
 [6] Poseidon Research. (2026). *Collusion Hackathon / Colosseum starter*,
 revision `e6fb1308dae9cf97ae42aec1c5f7889d9e2291e8`. GitHub:
-https://github.com/poseidon-research/collusion_hackathon/tree/e6fb1308dae9cf97ae42aec1c5f7889d9e2291e8.
+https://github.com/poseidon-research/collusion_hackathon/tree/e6fb1308dae9cf97ae42aec1c5f7889d9e2291e8
 
 [7] Apart Research. (2026). *AI Collusion Research Sprint*. Submission
 requirements and official template link:
-https://apartresearch.com/sprints/ai-collusion-research-sprint-2026-10-23-to-2026-10-25.
+https://apartresearch.com/sprints/ai-collusion-research-sprint-2026-10-23-to-2026-10-25
 
 ## Appendix A. Limitations and Dual-Use / Ethical Considerations
 
@@ -413,7 +421,7 @@ to people, organisations, or deployed systems without new evidence.
 ## Appendix B. Code, evidence, and LLM usage statement
 
 Code and sanitized evidence are available at
-https://github.com/ometere123/beyond-confessions. The preserved Milestone 2
+https://github.com/ometere123/beyond-confessions The preserved Milestone 2
 archive is `evidence/milestone2/raw_artifacts_20261025.zip`, SHA-256
 `25cf15f33703c58b1fa0766e19dae4b76b7326887ead2a7aa38ec2797fe23f56`. The
 Milestone 3 verifier makes no API requests:

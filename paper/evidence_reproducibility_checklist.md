@@ -27,8 +27,15 @@ Archive SHA-256: `25cf15f33703c58b1fa0766e19dae4b76b7326887ead2a7aa38ec2797fe23f
 | Final PDF checksumed | PASS | `evidence/milestone3/checksums.sha256` |
 | Secrets excluded | PASS | Ignored `.env`; repository/history scans |
 | Independent reproduction from fresh extraction | PASS | M2 validator and analysis passed on portable extraction |
-| Official template transfer | BLOCKED | Requested Dele Chrome profile is unavailable to the browser connector |
+| Official template transfer | PASS | Editable copy created in official template with Chrome profile Dele; export verified |
 | Author and affiliation | PASS | Ometere Dele-Alufec; Independent Researcher, Nigeria |
+
+Google Docs copy (private to the user):
+<https://docs.google.com/document/d/1Dw0ae0l4lyRb2dJQvuAykuzwHCde5eqRmezN4HuTL48/edit?tab=t.0>
+
+The committed PDF at `output/pdf/beyond_confessions_submission.pdf` is the
+direct Google Docs PDF export. No new API request or Modal deployment was made
+during final preparation.
 
 ## No-API verification commands
 

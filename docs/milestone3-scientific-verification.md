@@ -2,7 +2,7 @@
 
 Date: 2026-10-26  
 Starting main SHA: `432e0fd5b3a43bd087ec53236c6930c952b694b9`  
-Status: `VERIFIED_LOCAL_PACKAGE; GOOGLE_DOCS_TRANSFER_BLOCKED`
+Status: `VERIFIED_GOOGLE_DOCS_EXPORT`
 
 ## Scope and non-negotiable evidence boundary
 
@@ -181,18 +181,20 @@ the official Apart sprint page are linked in the paper.
 
 The official sprint page specifies the report structure, a 150-250 word
 abstract, an eight-page maximum excluding references/appendices, and a required
-Limitations and Dual-Use / Ethical Considerations appendix. The official
-Google Docs copy URL is preserved in the submission checklist, but the
-requested Chrome profile `Dele` is not exposed to the browser connector. The
-local manuscript contains the confirmed author and affiliation details. The
-PDF is a verified local candidate, not a claim that the final Google Docs
-template transfer or Google Docs export has been completed.
+Limitations and Dual-Use / Ethical Considerations appendix. An editable copy was
+created in that official template with Chrome profile `Dele`, kept private to
+the user's Google Drive, and exported directly from Google Docs. The copy URL
+is recorded in `paper/submission_checklist.md`. The final export has 11 pages;
+the main text occupies pages 1-8 and references/appendices occupy the excluded
+material on pages 9-11. The title metadata is present in the PDF and the
+confirmed author and affiliation are rendered on the title page. Google Docs'
+direct export did not emit a separate PDF `/Author` metadata field; this is
+recorded in the machine-readable QA receipt rather than repaired by
+post-processing, so the committed file remains an authentic Google Docs
+export.
 
 ## Final readiness assessment
 
-The scientific evidence package is ready for manuscript review: the preserved
-archive, independent recalculation, source audit, figures, cases, cost ledger,
-and no-API QA receipts agree. The manuscript is ready for transfer into the
-official template. It is blocked from final template verification until the
-`Dele` Chrome profile is exposed to computer use or the user completes the
-transfer. No submission was performed.
+The manuscript, editable Google Docs copy, direct export, independent
+recalculation, source audit, figures, cases, cost ledger, and no-API QA receipts
+agree. No submission was performed; the user retains the final submission step.

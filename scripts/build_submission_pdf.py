@@ -340,7 +340,7 @@ def main() -> int:
         rightMargin=0.55 * inch,
         topMargin=0.52 * inch,
         bottomMargin=0.52 * inch,
-        title="Beyond Confessions: What Can Message-Action Evidence Really Establish About AI-Agent Collusion?",
+        title="Beyond Confessions: What Can Message–Action Evidence Really Establish About AI-Agent Collusion?",
         author="Ometere Dele-Alufec",
     )
     doc.addPageTemplates([PageTemplate(id="main", frames=[frame], onPage=_footer)])

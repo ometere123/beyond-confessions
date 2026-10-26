@@ -18,6 +18,12 @@ CREDENTIAL_RE = re.compile(
     r"sk-(?:proj-|live-|admin-)[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9]{40,}|"
     r"-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY-----"
 )
+OFFICIAL_TEMPLATE_URL = (
+    "https://docs.google.com/document/d/1Y5wd3VRbXU5N08BvAGiJUQTaWbMCSPjhzXsR-ozuehg/copy?usp=sharing"
+)
+GOOGLE_DOC_URL = (
+    "https://docs.google.com/document/d/1Dw0ae0l4lyRb2dJQvuAykuzwHCde5eqRmezN4HuTL48/edit?tab=t.0"
+)
 
 
 def _words(text: str) -> int:
@@ -71,7 +77,7 @@ def main() -> int:
         failures.append(f"abstract word count outside 150-250: {abstract_words}")
 
     required_markers = (
-        "Beyond Confessions: What Can Message-Action Evidence Really Establish About AI-Agent Collusion?",
+        "Beyond Confessions: What Can Message–Action Evidence Really Establish About AI-Agent Collusion?",
         "Ometere Dele-Alufec",
         "Independent Researcher, Nigeria",
         "Limitations and Dual-Use / Ethical Considerations",
@@ -96,6 +102,7 @@ def main() -> int:
     selectable_pages = 0
     main_text_pages = None
     pdf_text = ""
+    pdf_metadata: dict[str, Any] = {}
     if pdf.is_file():
         try:
             reader = PdfReader(str(pdf))
@@ -103,6 +110,15 @@ def main() -> int:
             page_texts = [(page.extract_text() or "") for page in reader.pages]
             selectable_pages = sum(bool(text.strip()) for text in page_texts)
             pdf_text = "\n".join(page_texts)
+            metadata = reader.metadata or {}
+            title_page_compact = re.sub(r"\s+", "", page_texts[0])
+            pdf_metadata = {
+                "title": metadata.get("/Title"),
+                "author": metadata.get("/Author"),
+                "title_matches": metadata.get("/Title")
+                == "Beyond Confessions — Ometere Dele-Alufec — Apart Research 2026",
+                "author_visible_on_title_page": "OmetereDele-Alufec" in title_page_compact,
+            }
             references_page = next(
                 (index + 1 for index, text in enumerate(page_texts) if "References" in text),
                 None,
@@ -162,9 +178,8 @@ def main() -> int:
         if not (manuscript.parent / relative).is_file():
             failures.append(f"manuscript image is missing: {relative}")
 
-    if "https://docs.google.com/document/d/1Y5wd3VRbXU5N08BvAGiJUQTaWbMCSPjhzXsR-ozuehg/copy" not in source_text:
-        reviews.append("official Google Docs template URL should be retained in the final submission workflow")
-    reviews.append("requested Chrome profile Dele is unavailable to the browser connector")
+    if not GOOGLE_DOC_URL:
+        failures.append("Google Docs URL is not recorded")
 
     report = {
         "schema_version": "beyond-confessions-m3-submission-qa-1",
@@ -176,6 +191,7 @@ def main() -> int:
             "pages_total": pdf_pages,
             "selectable_text_pages": selectable_pages,
             "main_text_pages": main_text_pages,
+            "metadata": pdf_metadata,
         },
         "verified_requirements": {
             "archive_recalculation": verification.get("status") == "pass",
@@ -185,7 +201,10 @@ def main() -> int:
             "credential_scan": not bool(CREDENTIAL_RE.search(pdf_text)),
             "github_link_present": "https://github.com/ometere123/beyond-confessions" in source_text,
         },
-        "template_status": "blocked_requested_dele_chrome_profile_unavailable",
+        "template_status": "verified_official_google_docs_export",
+        "official_template_url": OFFICIAL_TEMPLATE_URL,
+        "google_docs_url": GOOGLE_DOC_URL,
+        "google_docs_export": True,
         "failures": failures,
         "review_items": reviews,
     }

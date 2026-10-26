@@ -5,9 +5,15 @@
   "abstract_word_count": 197,
   "pdf": {
     "path": "output/pdf/beyond_confessions_submission.pdf",
-    "pages_total": 8,
-    "selectable_text_pages": 8,
-    "main_text_pages": 6
+    "pages_total": 11,
+    "selectable_text_pages": 11,
+    "main_text_pages": 8,
+    "metadata": {
+      "title": "Beyond Confessions \u2014 Ometere Dele-Alufec \u2014 Apart Research 2026",
+      "author": null,
+      "title_matches": true,
+      "author_visible_on_title_page": true
+    }
   },
   "verified_requirements": {
     "archive_recalculation": true,
@@ -17,10 +23,10 @@
     "credential_scan": true,
     "github_link_present": true
   },
-  "template_status": "blocked_requested_dele_chrome_profile_unavailable",
+  "template_status": "verified_official_google_docs_export",
+  "official_template_url": "https://docs.google.com/document/d/1Y5wd3VRbXU5N08BvAGiJUQTaWbMCSPjhzXsR-ozuehg/copy?usp=sharing",
+  "google_docs_url": "https://docs.google.com/document/d/1Dw0ae0l4lyRb2dJQvuAykuzwHCde5eqRmezN4HuTL48/edit?tab=t.0",
+  "google_docs_export": true,
   "failures": [],
-  "review_items": [
-    "official Google Docs template URL should be retained in the final submission workflow",
-    "requested Chrome profile Dele is unavailable to the browser connector"
-  ]
+  "review_items": []
 }
